@@ -4,6 +4,7 @@
 #include "files.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -18,7 +19,7 @@ static char *current_dir(void) {
     char cwd[512];
 #ifdef _WIN32
     if (GetCurrentDirectory(sizeof(cwd), cwd) != 0) {
-        return cwd;
+        return strdup(cwd);
     }
     return NULL;
 #else
@@ -66,14 +67,20 @@ static int create(Project *self) {
     case CMD_INIT:
         if (!self->name) {
             warn("no name provided, using the name of the directory");
-            char *path = current_dir();
-            info(path);
-            if (!path) {
+            char *cur_dir = current_dir();
+            info(cur_dir);
+            if (!cur_dir) {
                 perr("failed to get current directory");
                 return 1;
             }
-            self->name = strrchr(path, '/');
-            self->name = self->name ? self->name + 1 : path;
+            self->name = strrchr(cur_dir, '/');
+            /* self->name = self->name ? self->name + 1 : cur_dir; */
+            if (self->name) {
+                self->name = self->name + 1;
+                free(cur_dir);
+            } else {
+                self->name = cur_dir;
+            }
         }
         break;
     default:
@@ -104,9 +111,12 @@ static int create(Project *self) {
 
         snprintf(path, sizeof(path), "%s/Makefile", relative_path);
         path[sizeof(path) - 1] = '\0'; // make sure it is null terminated
-        if (write_file(path, MAKEFILE_C(self->name)) != 0) {
+        char *contents = MAKEFILE_C(self->name);
+        if (write_file(path, contents) != 0) {
+            free(contents);
             return 1;
         }
+        free(contents);
     } else if ((self->flags & FLAG_CPP)) {
         snprintf(path, sizeof(path), "%s/src/main.cpp", relative_path);
         path[sizeof(path) - 1] = '\0'; // make sure it is null terminated
@@ -116,9 +126,12 @@ static int create(Project *self) {
 
         snprintf(path, sizeof(path), "%s/Makefile", relative_path);
         path[sizeof(path) - 1] = '\0'; // make sure it is null terminated
+        char *contents = MAKEFILE_CPP(self->name);
         if (write_file(path, MAKEFILE_CPP(self->name)) != 0) {
+            free(contents);
             return 1;
         }
+        free(contents);
     }
     snprintf(path, sizeof(path), "%s/compile_flags.txt", relative_path);
     path[sizeof(path) - 1] = '\0'; // make sure it is null terminated
