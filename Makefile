@@ -8,6 +8,14 @@ SRC_DIR := src
 SRC := $(wildcard $(SRC_DIR)/*.c)
 BUILD_DIR := build
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+
+RM := rm -rf
+MKDIR := mkdir -p
+ifeq ($(OS),Windows_NT)
+    RM = rmdir /s /q
+	MKDIR = md
+endif
+
 .PHONY: all build run clean
 
 all: build
@@ -15,7 +23,7 @@ all: build
 build: $(BUILD_DIR)/$(PROJECT)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(@D)
+	-@$(MKDIR) $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES) $(BUILD_ARGS)
 
 $(BUILD_DIR)/$(PROJECT): $(OBJ)
@@ -28,4 +36,4 @@ run: build
 	./$(BUILD_DIR)/$(PROJECT) $(ARGS)
 
 clean:
-	rm -rf $(BUILD_DIR)
+	$(RM) $(BUILD_DIR)
