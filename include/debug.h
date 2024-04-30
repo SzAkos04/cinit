@@ -9,6 +9,7 @@
 #define RESET "\033[;0m"
 #define BOLD "\033[0;1m"
 #define BOLD_RED "\033[1;31m"
+#define BOLD_GREEN "\033[1;32m"
 #define BOLD_YELLOW "\033[1;33m"
 #define BOLD_BLUE "\033[1;34m"
 
@@ -36,6 +37,12 @@
             fprintf(stdout, "%scinit: %sinfo%s: %s\n", BOLD, BOLD_BLUE, RESET, \
                     msg);                                                      \
         }                                                                      \
+    } while (0)
+
+#define success(msg)                                                           \
+    do {                                                                       \
+        fprintf(stdout, "%scinit: %ssuccess%s: %s\n", BOLD, BOLD_GREEN, RESET, \
+                msg);                                                          \
     } while (0)
 
 #define MAYBE_UNUSED __attribute__((unused))

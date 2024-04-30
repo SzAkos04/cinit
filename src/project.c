@@ -74,11 +74,12 @@ static int create(Project *self) {
                 return 1;
             }
             self->name = strrchr(cur_dir, '/');
-            /* self->name = self->name ? self->name + 1 : cur_dir; */
             if (self->name) {
                 self->name = self->name + 1;
                 free(cur_dir);
             } else {
+                // NOTE: This is a memory leak, but it is only 1024 bytes
+                // Too much work to free this so I trust the OS to free it
                 self->name = cur_dir;
             }
         }

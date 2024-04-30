@@ -50,7 +50,7 @@ int main(int argc, char MAYBE_UNUSED **argv) {
                     default:
                         snprintf(err_msg, sizeof(err_msg),
                                  "unknown argument `-%c', "
-                                 "for more info run `cinit --help",
+                                 "for more info run `cinit --help`",
                                  argv[i][j]);
                         error(err_msg);
                         return EXIT_FAILURE;
@@ -92,5 +92,8 @@ int main(int argc, char MAYBE_UNUSED **argv) {
         return EXIT_FAILURE;
     }
 
+    snprintf(err_msg, sizeof(err_msg), "project `%s` successfully created",
+             project.name);
+    success(err_msg);
     return EXIT_SUCCESS;
 }
