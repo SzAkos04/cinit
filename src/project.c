@@ -143,7 +143,7 @@ static int create(Project *self) {
     return 0;
 }
 
-Project project_new(CMD command, unsigned int flags, char *name) {
+Project project_new(CMD command, unsigned int flags, const char *name) {
     Project project = (Project){
         .command = command,
         .flags = flags,
@@ -186,4 +186,9 @@ void help(void) {
     printf("\n");
     printf("For more information, visit:\n");
     printf("  https://github.com/SzAkos04/cinit\n");
+}
+
+void version(void) {
+    printf("cinit version 0.0.1\n");
+    printf("Released on August 21, 2024\n");
 }

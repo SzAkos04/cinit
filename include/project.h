@@ -15,10 +15,11 @@ typedef enum {
 typedef struct Project {
     CMD command;
     unsigned int flags;
-    char *name;
+    const char *name;
 
     int (*create)(struct Project *);
 } Project;
 
-Project project_new(CMD command, unsigned int flags, char *name);
+Project project_new(CMD command, unsigned int flags, const char *name);
 void help(void);
+void version(void);

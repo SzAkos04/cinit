@@ -6,59 +6,62 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char MAYBE_UNUSED **argv) {
+int main(int argc, char **argv) {
     if (argc < 2) {
         error("incorrect usage, for help run `cinit --help`");
         return EXIT_FAILURE;
     }
+
     char err_msg[128];
-
     CMD command = CMD_NONE;
-    unsigned int flags = 0;
-    char *name = NULL;
-
-    flags |= FLAG_C; // make c default
+    unsigned int flags = FLAG_C; // make c default
+    const char *name = NULL;
 
     // parse arguments
     for (int i = 1; i < argc; i++) {
-        int len = strlen(argv[i]);
-        if (len > 1 && argv[i][0] == '-') {
-            if (argv[i][1] == '-') {
-                if (!strcmp(argv[i], "--help")) {
+        const char *arg = argv[i];
+        int len = strlen(arg);
+        if (len > 1 && arg[0] == '-') {
+            if (arg[1] == '-') {
+                if (!strcmp(arg, "--help")) {
                     help();
                     return EXIT_SUCCESS;
-                } else if (!strcmp(argv[i], "--c")) {
-                    flags &= ~FLAG_CPP;
-                    flags |= FLAG_C;
-                } else if (!strcmp(argv[i], "--cpp")) {
-                    flags &= ~FLAG_C;
-                    flags |= FLAG_CPP;
+                } else if (!strcmp(arg, "--version")) {
+                    version();
+                    return EXIT_SUCCESS;
+                } else if (!strcmp(arg, "--c")) {
+                    flags = (flags & ~FLAG_CPP) | FLAG_C;
+                } else if (!strcmp(arg, "--cpp")) {
+                    flags = (flags & ~FLAG_C) | FLAG_CPP;
                 } else {
                     snprintf(err_msg, sizeof(err_msg),
                              "unknown argument `%s`, "
                              "for more info run `cinit --help`",
-                             argv[i]);
+                             arg);
                     error(err_msg);
                     return EXIT_FAILURE;
                 }
             } else {
                 for (int j = 1; j < len; j++) {
-                    switch (argv[i][j]) {
+                    switch (arg[j]) {
                     case 'h':
                         help();
+                        return EXIT_SUCCESS;
+                    case 'v':
+                        version();
                         return EXIT_SUCCESS;
                     default:
                         snprintf(err_msg, sizeof(err_msg),
                                  "unknown argument `-%c', "
                                  "for more info run `cinit --help`",
-                                 argv[i][j]);
+                                 arg[j]);
                         error(err_msg);
                         return EXIT_FAILURE;
                     }
                 }
             }
         } else {
-            if (!strcmp(argv[i], "create") || !strcmp(argv[i], "c")) {
+            if (!strcmp(arg, "create") || !strcmp(arg, "c")) {
                 if (i + 1 < argc && is_correct_name(argv[i + 1])) {
                     command = CMD_CREATE;
                     name = argv[++i];
@@ -66,7 +69,7 @@ int main(int argc, char MAYBE_UNUSED **argv) {
                     error("incorrect usage, for help run `cinit --help`");
                     return EXIT_FAILURE;
                 }
-            } else if (!strcmp(argv[i], "init") || !strcmp(argv[i], "i")) {
+            } else if (!strcmp(arg, "init") || !strcmp(arg, "i")) {
                 if (i + 1 < argc && is_correct_name(argv[i + 1])) {
                     name = argv[++i];
                 }
@@ -75,7 +78,7 @@ int main(int argc, char MAYBE_UNUSED **argv) {
                 snprintf(err_msg, sizeof(err_msg),
                          "unknown command `%s`, "
                          "for more info run `cinit --help`",
-                         argv[i]);
+                         arg);
                 error(err_msg);
                 return EXIT_FAILURE;
             }

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool is_correct_name(const char *name) {
+static bool is_correct_name(const char *name) {
     if (!isalpha(name[0])) {
         return false;
     }
