@@ -49,8 +49,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, "src");
      */
-    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") ==
-        -1) {
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
@@ -62,8 +61,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR,
      * "include"); */
-    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
-                          "include") == -1) {
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "include") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
@@ -75,8 +73,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
     /*          "Makefile"); */
-    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
-                          "Makefile") == -1) {
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "Makefile") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
@@ -94,8 +91,8 @@ int project_generate(project_t *self) {
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
     /*          (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp"); */
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
-                          (self->flags & FLAG_C) ? "src/main.c"
-                                                 : "src/main.cpp") == -1) {
+                 (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp") ==
+        -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
@@ -107,7 +104,7 @@ int project_generate(project_t *self) {
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
     /*          "compile_flags.txt"); */
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
-                          "compile_flags.txt") == -1) {
+                 "compile_flags.txt") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
@@ -156,11 +153,11 @@ bool is_correct_name(const char *str) {
 }
 
 void version(void) {
-    printf("cinit v0.0.2\n");
-    printf("Git commit: %s\n", VERSION);
-    printf("Built on  : %s\n", BUILD_DATE);
+    printf("%scinit v0.0.2%s\n", BOLD, RESET);
+    printf("%sGit commit%s: %s\n", BOLD, RESET, VERSION);
+    printf("%sBuilt on  %s: %s\n", BOLD, RESET, BUILD_DATE);
     // TODO: update release date before publishing
-    printf("Release   : <TBD>, 2025\n");
+    printf("%sRelease   %s: <TBD>, 2025\n", BOLD, RESET);
 }
 
 void help(void) {
