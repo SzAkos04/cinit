@@ -23,7 +23,7 @@ int project_generate(project_t *self) {
     /* char relative[64]; */
     char *relative = NULL;
     /* snprintf(relative, sizeof(relative), ".%c", PATH_SEPARATOR); */
-    if (portable_asprintf(&relative, ".%c", PATH_SEPARATOR) == -1) {
+    if (asprintf(&relative, ".%c", PATH_SEPARATOR) == -1) {
         perr("failed to allocate memory for relative path");
         return 1;
     }
@@ -37,7 +37,7 @@ int project_generate(project_t *self) {
         /* strcat(relative, self->name); */
         char *tmp = relative;
         free(relative);
-        if (portable_asprintf(&relative, "%s%s", tmp, self->name) == -1) {
+        if (asprintf(&relative, "%s%s", tmp, self->name) == -1) {
             perr("failed to allocate memory for relative path");
             return 1;
         }
@@ -49,7 +49,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, "src");
      */
-    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") ==
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") ==
         -1) {
         perr("failed to allocate memory for path");
         return 1;
@@ -62,7 +62,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR,
      * "include"); */
-    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                           "include") == -1) {
         perr("failed to allocate memory for path");
         return 1;
@@ -75,7 +75,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
     /*          "Makefile"); */
-    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                           "Makefile") == -1) {
         perr("failed to allocate memory for path");
         return 1;
@@ -93,7 +93,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
     /*          (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp"); */
-    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                           (self->flags & FLAG_C) ? "src/main.c"
                                                  : "src/main.cpp") == -1) {
         perr("failed to allocate memory for path");
@@ -106,7 +106,7 @@ int project_generate(project_t *self) {
 
     /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
     /*          "compile_flags.txt"); */
-    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                           "compile_flags.txt") == -1) {
         perr("failed to allocate memory for path");
         return 1;
