@@ -1,5 +1,6 @@
 #include "project.h"
 
+#include "asprintf.h"
 #include "debug.h"
 #include "fs_utils.h"
 #include "template_files.h"
@@ -12,17 +13,20 @@
 int project_generate(project_t *self) {
     log("generating files for `%s%s%s`", BOLD, self->name, RESET);
 
-    log("%s", BUILD_DATE);
-
     // get current path
-    const char *cur_dir = current_dir();
+    char *cur_dir = current_dir();
     if (!cur_dir) {
         perr("failed to get current path");
         return 1;
     }
 
-    char relative[64];
-    snprintf(relative, sizeof(relative), ".%c", PATH_SEPARATOR);
+    /* char relative[64]; */
+    char *relative = NULL;
+    /* snprintf(relative, sizeof(relative), ".%c", PATH_SEPARATOR); */
+    if (portable_asprintf(&relative, ".%c", PATH_SEPARATOR) == -1) {
+        perr("failed to allocate memory for relative path");
+        return 1;
+    }
 
     // create the project folder if it doesn't already exist
     if (strcmp(self->path, cur_dir) != 0) {
@@ -30,25 +34,52 @@ int project_generate(project_t *self) {
             perr("failed to create project folder");
             return 1;
         }
-        strcat(relative, self->name);
+        /* strcat(relative, self->name); */
+        char *tmp = relative;
+        free(relative);
+        if (portable_asprintf(&relative, "%s%s", tmp, self->name) == -1) {
+            perr("failed to allocate memory for relative path");
+            return 1;
+        }
     }
+    free(cur_dir);
 
-    char path[128];
+    /* char path[128]; */
+    char *path = NULL;
 
-    snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, "src");
+    /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, "src");
+     */
+    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") ==
+        -1) {
+        perr("failed to allocate memory for path");
+        return 1;
+    }
     if (create_dir(path) != 0) {
         perr("failed to create `src/` folder");
         return 1;
     }
+    free(path);
 
-    snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, "include");
+    /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR,
+     * "include"); */
+    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+                          "include") == -1) {
+        perr("failed to allocate memory for path");
+        return 1;
+    }
     if (create_dir(path) != 0) {
         perr("failed to create `include/` folder");
         return 1;
     }
+    free(path);
 
-    snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR,
-             "Makefile");
+    /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
+    /*          "Makefile"); */
+    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+                          "Makefile") == -1) {
+        perr("failed to allocate memory for path");
+        return 1;
+    }
     char *makefile = (self->flags & FLAG_C) ? makefile_c(self->name)
                                             : makefile_cpp(self->name);
     if (!makefile) {
@@ -58,19 +89,36 @@ int project_generate(project_t *self) {
         return 1;
     }
     free(makefile);
+    free(path);
 
-    snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR,
-             (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp");
+    /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
+    /*          (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp"); */
+    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+                          (self->flags & FLAG_C) ? "src/main.c"
+                                                 : "src/main.cpp") == -1) {
+        perr("failed to allocate memory for path");
+        return 1;
+    }
     if (write_file(path, (self->flags & FLAG_C) ? main_c() : main_cpp()) != 0) {
         return 1;
     }
+    free(path);
 
-    snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR,
-             "compile_flags.txt");
+    /* snprintf(path, sizeof(path), "%s%c%s", relative, PATH_SEPARATOR, */
+    /*          "compile_flags.txt"); */
+    if (portable_asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+                          "compile_flags.txt") == -1) {
+        perr("failed to allocate memory for path");
+        return 1;
+    }
     if (write_file(path, compile_flags()) != 0) {
         return 1;
     }
+    free(path);
+    free(relative);
 
+    success("Successfully generated project files for `%s%s%s`", BOLD,
+            self->name, RESET);
     return 0;
 }
 
@@ -79,6 +127,9 @@ project_t *project_new(void) {
 
     project->flags = FLAG_C; // set C as default
     project->generate = project_generate;
+
+    project->name = NULL;
+    project->path = NULL;
 
     return project;
 }
@@ -105,41 +156,42 @@ bool is_correct_name(const char *str) {
 }
 
 void version(void) {
-    printf("cinit version 0.0.2\n");
-    // TODO: fix date on release
-    printf("Released on xxx, 2025\n");
+    printf("cinit v0.0.2\n");
+    printf("Git commit: %s\n", VERSION);
+    printf("Built on  : %s\n", BUILD_DATE);
+    // TODO: update release date before publishing
+    printf("Release   : <TBD>, 2025\n");
 }
 
 void help(void) {
-    printf("Usage:\n");
+    printf("%s%sUsage:%s\n", BOLD, UNDERLINED, RESET);
     printf("  cinit [create|c] [name] <args>\n");
     printf("  cinit [init|i] ([name]) <args>\n");
     printf("  cinit --help\n");
     printf("\n");
-    printf("Options:\n");
+    printf("%s%sOptions:%s\n", BOLD, UNDERLINED, RESET);
     printf("  init|i    Create a new project in the current directory\n");
     printf("  create|c  Create a new project in the given directory\n");
     printf("\n");
-    printf("Arguments:\n");
+    printf("%s%sArguments:%s\n", BOLD, UNDERLINED, RESET);
     printf("  name      The name of the project\n");
-    printf("  --c       Create a C project\n");
-    printf("  --cpp     Create a C++ project\n");
+    printf("  --c       Set language to C (default)\n");
+    printf("  --cpp     Set language to C++\n");
     printf("  --help    Show this message\n");
+    printf("  --version Show installed version\n");
     printf("\n");
-    printf("Examples:\n");
-    printf("  cinit init my_project\n");
+    printf("%s%sExamples:%s\n", BOLD, UNDERLINED, RESET);
+    printf("  %scinit init my_project%s\n", BOLD, RESET);
     printf("    Initializes a new project in the current directory\n");
-    printf("  cinit create my_project\n");
+    printf("  %scinit create my_project%s\n", BOLD, RESET);
     printf("    Creates a new project called `my_project`\n");
-    printf("  cinit create my_project --cpp\n");
+    printf("  %scinit create my_project --cpp%s\n", BOLD, RESET);
     printf("    Creates a new C++ project called `my_project`\n");
     printf("\n");
-    printf("Notes:\n");
-    printf("  - The project name should consist only of alphanumeric "
-           "characters and underscores, max length is 32 characters\n");
-    printf("  - If no language is specified, the default language is assumed "
-           "to be C\n");
+    printf("%s%sNotes:%s\n", BOLD, UNDERLINED, RESET);
+    printf("  - Project names must be alphanumeric or underscores only\n");
+    printf("  - Maximum length: 32 characters\n");
     printf("\n");
-    printf("For more information, visit:\n");
-    printf("  https://github.com/SzAkos04/cinit\n");
+    printf("%s%sFor more information, visit:%s\n", BOLD, UNDERLINED, RESET);
+    printf("  %shttps://github.com/SzAkos04/cinit%s\n", BOLD, RESET);
 }

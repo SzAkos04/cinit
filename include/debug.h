@@ -8,6 +8,7 @@
 #define BOLD_GREEN "\033[1;32m"
 #define BOLD_YELLOW "\033[1;33m"
 #define BOLD_BLUE "\033[1;34m"
+#define UNDERLINED "\033[4m"
 
 #define error(...)                                                             \
     do {                                                                       \

@@ -21,7 +21,7 @@ else
     VERSION := "unknown"
 endif
 BUILD_DATE := $(shell date +"%Y-%m-%d %H:%M:%S")
-BUILD_INFO := -DVERSION=\"$(VERSION)\" -DBUILD_DATE=\"$(BUILD_DATE)\"
+BUILD_INFO := -DVERSION='"$(VERSION)"' -DBUILD_DATE='"$(BUILD_DATE)"'
 
 .PHONY: all build clean
 

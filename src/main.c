@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
 
-                const char *cur_dir = current_dir();
+                char *cur_dir = current_dir();
                 if (!cur_dir) {
                     perr("failed to get current path");
                     project_free(project);
@@ -88,6 +88,8 @@ int main(int argc, char **argv) {
                 project->path = (char *)malloc(path_len + 1);
                 snprintf(project->path, path_len, "%s%c%s", cur_dir,
                          PATH_SEPARATOR, project->name);
+
+                free(cur_dir);
 
             } else if (strcmp(arg, "init") == 0 || strcmp(arg, "i") == 0) {
                 // create the project in the current directory
