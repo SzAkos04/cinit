@@ -8,7 +8,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#define strdup _strdup
 #else
 #include <sys/stat.h>
 #include <unistd.h>
