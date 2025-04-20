@@ -14,6 +14,9 @@ int main(int argc, char **argv) {
     }
 
     project_t *project = project_new();
+    if (!project) {
+        return EXIT_FAILURE;
+    }
 
     for (int i = 1; i < argc; ++i) {
         const char *arg = argv[i];

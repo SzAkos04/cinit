@@ -109,6 +109,10 @@ int project_generate(project_t *self) {
 
 project_t *project_new(void) {
     project_t *project = (project_t *)malloc(sizeof(project_t));
+    if (!project) {
+        perr("failed to allocate memory for project");
+        return NULL;
+    }
 
     project->flags = FLAG_C; // set C as default
     project->generate = project_generate;
