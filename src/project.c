@@ -9,9 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 int project_generate(project_t *self) {
-    log("generating files for `%s%s%s`", BOLD, self->name, RESET);
+    clock_t start = clock();
+
+    log("Generating files for `%s%s%s`", BOLD, self->name, RESET);
 
     // get current path
     char *cur_dir = current_dir();
@@ -29,7 +32,7 @@ int project_generate(project_t *self) {
     // create the project folder if it doesn't already exist
     if (strcmp(self->path, cur_dir) != 0) {
         if (create_dir(self->path) != 0) {
-            perr("failed to create project folder");
+            perr("failed to create `%s` folder", self->path);
             return 1;
         }
         char *tmp = relative;
@@ -43,28 +46,31 @@ int project_generate(project_t *self) {
 
     char *path = NULL;
 
-     */
+    // create the `src/` folder
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
     if (create_dir(path) != 0) {
-        perr("failed to create `src/` folder");
+        perr("failed to create `%s` folder",
+             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
     }
     free(path);
 
-     * "include"); */
+    // create the `include/` folder
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "include") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
     if (create_dir(path) != 0) {
-        perr("failed to create `include/` folder");
+        perr("failed to create `%s` folder",
+             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
     }
     free(path);
 
+    // create `Makefile`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "Makefile") == -1) {
         perr("failed to allocate memory for path");
         return 1;
@@ -74,12 +80,15 @@ int project_generate(project_t *self) {
     if (!makefile) {
         return 1;
     }
-    if (write_file(path, makefile) != 0) {
+    if (write_file(path, makefile) == 0) {
+        perr("failed to write to `%s`",
+             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
     }
     free(makefile);
     free(path);
 
+    // create `main.c(pp)`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                  (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp") ==
         -1) {
@@ -87,23 +96,31 @@ int project_generate(project_t *self) {
         return 1;
     }
     if (write_file(path, (self->flags & FLAG_C) ? main_c() : main_cpp()) != 0) {
+        perr("failed to write to `%s`",
+             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
     }
     free(path);
 
+    // create `compile_flags.txt`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                  "compile_flags.txt") == -1) {
         perr("failed to allocate memory for path");
         return 1;
     }
     if (write_file(path, compile_flags()) != 0) {
+        perr("failed to write to `%s`",
+             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
     }
     free(path);
     free(relative);
 
-    success("Successfully generated project files for `%s%s%s`", BOLD,
-            self->name, RESET);
+    clock_t end = clock();
+    double time_taken = (double)(end - start) * 1000.0 / CLOCKS_PER_SEC;
+
+    success("Generated %sproject%s `%s%s%s` in %s%.2fms%s", DIM, RESET, BOLD,
+            self->name, RESET, CYAN, time_taken, RESET);
     return 0;
 }
 
@@ -153,23 +170,23 @@ void version(void) {
 }
 
 void help(void) {
-    printf("%s%sUsage:%s\n", BOLD, UNDERLINED, RESET);
+    printf("%s%sUsage:%s\n", BOLD, UNDERLINE, RESET);
     printf("  cinit [create|c] [name] <args>\n");
     printf("  cinit [init|i] ([name]) <args>\n");
     printf("  cinit --help\n");
     printf("\n");
-    printf("%s%sOptions:%s\n", BOLD, UNDERLINED, RESET);
+    printf("%s%sOptions:%s\n", BOLD, UNDERLINE, RESET);
     printf("  init|i    Create a new project in the current directory\n");
     printf("  create|c  Create a new project in the given directory\n");
     printf("\n");
-    printf("%s%sArguments:%s\n", BOLD, UNDERLINED, RESET);
+    printf("%s%sArguments:%s\n", BOLD, UNDERLINE, RESET);
     printf("  name      The name of the project\n");
     printf("  --c       Set language to C (default)\n");
     printf("  --cpp     Set language to C++\n");
     printf("  --help    Show this message\n");
     printf("  --version Show installed version\n");
     printf("\n");
-    printf("%s%sExamples:%s\n", BOLD, UNDERLINED, RESET);
+    printf("%s%sExamples:%s\n", BOLD, UNDERLINE, RESET);
     printf("  %scinit init my_project%s\n", BOLD, RESET);
     printf("    Initializes a new project in the current directory\n");
     printf("  %scinit create my_project%s\n", BOLD, RESET);
@@ -177,10 +194,10 @@ void help(void) {
     printf("  %scinit create my_project --cpp%s\n", BOLD, RESET);
     printf("    Creates a new C++ project called `my_project`\n");
     printf("\n");
-    printf("%s%sNotes:%s\n", BOLD, UNDERLINED, RESET);
+    printf("%s%sNotes:%s\n", BOLD, UNDERLINE, RESET);
     printf("  - Project names must be alphanumeric or underscores only\n");
     printf("  - Maximum length: 32 characters\n");
     printf("\n");
-    printf("%s%sFor more information, visit:%s\n", BOLD, UNDERLINED, RESET);
+    printf("%s%sFor more information, visit:%s\n", BOLD, UNDERLINE, RESET);
     printf("  %shttps://github.com/SzAkos04/cinit%s\n", BOLD, RESET);
 }

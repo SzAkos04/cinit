@@ -40,7 +40,6 @@ int create_dir(const char *path) {
 int write_file(const char *path, const char *contents) {
     FILE *outfile = fopen(path, "w");
     if (!outfile) {
-        perr("failed to open file");
         return 1;
     }
     fputs(contents, outfile);
