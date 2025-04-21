@@ -33,14 +33,19 @@ int project_generate(project_t *self) {
     if (strcmp(self->path, cur_dir) != 0) {
         if (create_dir(self->path) != 0) {
             perr("failed to create `%s` folder", self->path);
+            free(relative);
+            free(cur_dir);
             return 1;
         }
-        char *tmp = relative;
+        char *tmp = strdup(relative);
         free(relative);
         if (asprintf(&relative, "%s%s", tmp, self->name) == -1) {
             perr("failed to allocate memory for relative path");
+            free(tmp);
+            free(cur_dir);
             return 1;
         }
+        free(tmp);
     }
     free(cur_dir);
 
@@ -49,11 +54,14 @@ int project_generate(project_t *self) {
     // create the `src/` folder
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") == -1) {
         perr("failed to allocate memory for path");
+        free(relative);
         return 1;
     }
     if (create_dir(path) != 0) {
         perr("failed to create `%s` folder",
              strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+        free(path);
+        free(relative);
         return 1;
     }
     free(path);
@@ -61,11 +69,14 @@ int project_generate(project_t *self) {
     // create the `include/` folder
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "include") == -1) {
         perr("failed to allocate memory for path");
+        free(relative);
         return 1;
     }
     if (create_dir(path) != 0) {
         perr("failed to create `%s` folder",
              strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+        free(path);
+        free(relative);
         return 1;
     }
     free(path);
@@ -73,14 +84,20 @@ int project_generate(project_t *self) {
     // create `Makefile`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "Makefile") == -1) {
         perr("failed to allocate memory for path");
+        free(relative);
         return 1;
     }
     char *makefile = (self->flags & FLAG_C) ? makefile_c(self->name)
                                             : makefile_cpp(self->name);
     if (!makefile) {
+        free(path);
+        free(relative);
         return 1;
     }
-    if (write_file(path, makefile) == 0) {
+    if (write_file(path, makefile) != 0) {
+        free(makefile);
+        free(path);
+        free(relative);
         perr("failed to write to `%s`",
              strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
@@ -93,11 +110,14 @@ int project_generate(project_t *self) {
                  (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp") ==
         -1) {
         perr("failed to allocate memory for path");
+        free(relative);
         return 1;
     }
     if (write_file(path, (self->flags & FLAG_C) ? main_c() : main_cpp()) != 0) {
         perr("failed to write to `%s`",
              strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+        free(path);
+        free(relative);
         return 1;
     }
     free(path);
@@ -106,11 +126,14 @@ int project_generate(project_t *self) {
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                  "compile_flags.txt") == -1) {
         perr("failed to allocate memory for path");
+        free(relative);
         return 1;
     }
     if (write_file(path, compile_flags()) != 0) {
         perr("failed to write to `%s`",
              strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+        free(path);
+        free(relative);
         return 1;
     }
     free(path);
