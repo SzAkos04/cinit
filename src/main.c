@@ -9,6 +9,15 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    if (opts.show_version) {
+        version();
+        return EXIT_SUCCESS;
+    }
+    if (opts.show_help) {
+        help();
+        return EXIT_SUCCESS;
+    }
+
     int ret = project_generate(opts) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 
     opts_free(&opts);

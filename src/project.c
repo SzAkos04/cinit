@@ -151,7 +151,7 @@ void version(void) {
     printf("%sGit commit%s: %s\n", BOLD, RESET, VERSION);
     printf("%sBuilt on  %s: %s\n", BOLD, RESET, BUILD_DATE);
     // TODO: update release date before publishing
-    printf("%sRelease   %s: <TBD>, 2025\n", BOLD, RESET);
+    printf("%sRelease   %s: 24/04/2025\n", BOLD, RESET);
 }
 
 void help(void) {
