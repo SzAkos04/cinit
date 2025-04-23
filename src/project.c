@@ -1,20 +1,20 @@
 #include "project.h"
 
 #include "asprintf.h"
+#include "cli.h"
 #include "debug.h"
 #include "fs_utils.h"
 #include "template_files.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-int project_generate(project_t *self) {
+int project_generate(cli_options_t opts) {
     clock_t start = clock();
 
-    log("Generating files for `%s%s%s`", BOLD, self->name, RESET);
+    log("Generating files for `%s%s%s`", BOLD, opts.name, RESET);
 
     // get current path
     char *cur_dir = current_dir();
@@ -30,16 +30,16 @@ int project_generate(project_t *self) {
     }
 
     // create the project folder if it doesn't already exist
-    if (strcmp(self->path, cur_dir) != 0) {
-        if (create_dir(self->path) != 0) {
-            perr("failed to create `%s` folder", self->path);
+    if (strcmp(opts.path, cur_dir) != 0) {
+        if (create_dir(opts.path) != 0) {
+            perr("failed to create `%s` folder", opts.path);
             free(relative);
             free(cur_dir);
             return 1;
         }
         char *tmp = strdup(relative);
         free(relative);
-        if (asprintf(&relative, "%s%s", tmp, self->name) == -1) {
+        if (asprintf(&relative, "%s%s", tmp, opts.name) == -1) {
             perr("failed to allocate memory for relative path");
             free(tmp);
             free(cur_dir);
@@ -59,7 +59,7 @@ int project_generate(project_t *self) {
     }
     if (create_dir(path) != 0) {
         perr("failed to create `%s` folder",
-             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -74,7 +74,7 @@ int project_generate(project_t *self) {
     }
     if (create_dir(path) != 0) {
         perr("failed to create `%s` folder",
-             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -87,19 +87,19 @@ int project_generate(project_t *self) {
         free(relative);
         return 1;
     }
-    char *makefile = (self->flags & FLAG_C) ? makefile_c(self->name)
-                                            : makefile_cpp(self->name);
+    char *makefile =
+        (opts.lang == LANG_C) ? makefile_c(opts.name) : makefile_cpp(opts.name);
     if (!makefile) {
         free(path);
         free(relative);
         return 1;
     }
     if (write_file(path, makefile) != 0) {
+        perr("failed to write to `%s`",
+             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
         free(makefile);
         free(path);
         free(relative);
-        perr("failed to write to `%s`",
-             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
         return 1;
     }
     free(makefile);
@@ -107,15 +107,14 @@ int project_generate(project_t *self) {
 
     // create `main.c(pp)`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
-                 (self->flags & FLAG_C) ? "src/main.c" : "src/main.cpp") ==
-        -1) {
+                 (opts.lang == LANG_C) ? "src/main.c" : "src/main.cpp") == -1) {
         perr("failed to allocate memory for path");
         free(relative);
         return 1;
     }
-    if (write_file(path, (self->flags & FLAG_C) ? main_c() : main_cpp()) != 0) {
+    if (write_file(path, (opts.lang == LANG_C) ? main_c() : main_cpp()) != 0) {
         perr("failed to write to `%s`",
-             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -131,7 +130,7 @@ int project_generate(project_t *self) {
     }
     if (write_file(path, compile_flags()) != 0) {
         perr("failed to write to `%s`",
-             strcat(self->path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -143,45 +142,8 @@ int project_generate(project_t *self) {
     double time_taken = (double)(end - start) * 1000.0 / CLOCKS_PER_SEC;
 
     success("Generated %sproject%s `%s%s%s` in %s%.2fms%s", DIM, RESET, BOLD,
-            self->name, RESET, CYAN, time_taken, RESET);
+            opts.name, RESET, CYAN, time_taken, RESET);
     return 0;
-}
-
-project_t *project_new(void) {
-    project_t *project = (project_t *)malloc(sizeof(project_t));
-    if (!project) {
-        perr("failed to allocate memory for project");
-        return NULL;
-    }
-
-    project->flags = FLAG_C; // set C as default
-    project->generate = project_generate;
-
-    project->name = NULL;
-    project->path = NULL;
-
-    return project;
-}
-
-void project_free(project_t *project) {
-    free(project->path);
-    free(project);
-}
-
-bool is_correct_name(const char *str) {
-    if (!isalpha(str[0])) {
-        return false;
-    }
-    int len = strlen(str);
-    if (len > 32) {
-        return false;
-    }
-    for (int i = 0; i < len; i++) {
-        if (!(isalnum(str[i]) || str[i] == '_')) {
-            return false;
-        }
-    }
-    return true;
 }
 
 void version(void) {
