@@ -153,11 +153,11 @@ int project_generate(cli_options_t opts) {
 #endif
 
 void version(void) {
-    printf("%scinit v0.0.3%s\n", BOLD, RESET);
+    printf("%scinit v0.0.4%s\n", BOLD, RESET);
     printf("%sGit commit%s: %s\n", BOLD, RESET, VERSION);
     printf("%sBuilt on  %s: %s\n", BOLD, RESET, BUILD_DATE);
     // TODO: update release date before publishing
-    printf("%sRelease   %s: 04/05/2025\n", BOLD, RESET);
+    printf("%sRelease   %s: 05/05/2025\n", BOLD, RESET);
 }
 
 void help(void) {
