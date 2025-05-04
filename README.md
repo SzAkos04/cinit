@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon.png" alt="cinit logo" width="100" />
+  <img src="assets/icon.png" alt="cinit logo" width="20%" />
 </p>
 
 # cinit
@@ -23,38 +23,42 @@ git clone https://github.com/SzAkos04/cinit
 cd cinit
 ```
 
-### Build the binary:
+### On Linux
+
+#### Install the application
+
+```bash
+make linux_install
+```
+
+This copies the binary to `/usr/local/bin/` and the manpage to `/usr/local/man/man1/`
+
+### On Windows
+
+#### Build the binary:
 
 ```bash
 make release
 ```
 
-### Optionally add the binary to path
-
-#### On Linux:
-
-```bash
-sudo cp build/cinit usr/local/bin
-```
-
-#### On Windows:
+#### Add the binary to path
 
 Add the `build/` directory to your system's environment `PATH`.
 
 
 ## Usage
 ```bash
-cinit [create|c] [name] <args>
-cinit [init|i] ([name]) <args>
-cinit --help
+cinit [create|c] [name] <args>  # Create a project in a new directory
+cinit [init|i] ([name]) <args>  # Initialize a project in the current directory
+cinit --help                    # Show help message
 ```
 
 ### Commands
 
 | Command       | Description                                              |
 | ------------- | -------------------------------------------------------- |
-| `init`, `i`   | Initialize a project in the **current** directory        |
 | `create`, `c` | Create a project in a **new** directory                  |
+| `init`, `i`   | Initialize a project in the **current** directory        |
 | `name`        | Project name (alphanumeric or underscores, max 32 chars) |
 
 
@@ -84,10 +88,3 @@ Create a new C++ project in a new directory:
 ```bash
 cinit create my_project --cpp
 ```
-
-
-## Notes
-
-- Project names must contain only alphanumeric characters or underscores.
-
-- Maximum project name length is 32 characters.

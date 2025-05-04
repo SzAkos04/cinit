@@ -25,16 +25,12 @@ int main() {\n\
 }";
 }
 
-// COMPILER_NAME
-// COMPILER_BIN
-// PROJECT_NAME
-// EXTENSION
-// EXTENSION
-// EXTENSION
-// COMPILER_NAME
-// COMPILER_NAME
-static const char *makefile_template(void) {
-    return "\
+// HAS TO BE FREED
+static char *makefile_template(const char *compiler, const char *compiler_bin,
+                               const char *project, const char *ext) {
+    char *result = NULL;
+
+    if (asprintf(&result, "\
 %s := %s\n\
 PROJECT := %s\n\
 CFLAGS := -Wall -Wextra -Werror -Wpedantic\n\
@@ -65,7 +61,7 @@ $(BUILD_DIR)/%%.o: $(SRC_DIR)/%%.%s\n\
 $(BUILD_DIR)/$(PROJECT): $(OBJ)\n\
 \t$(%s) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS)\n\
 \n\
-release: BUILD_ARGS+=-O3 -B\n\
+release: BUILD_ARGS+=-O3\n\
 release: build\n\
 \n\
 run: build\n\
@@ -77,9 +73,18 @@ ifeq ($(OS),Windows_NT)\n\
 endif\n\
 \n\
 clean:\n\
-\t$(CLEAN)";
+\t$(CLEAN)\
+",
+                 compiler, compiler_bin, project, ext, ext, ext, compiler,
+                 compiler) == -1) {
+        perr("failed to allocate memory for Makefile");
+        return NULL;
+    }
+
+    return result;
 }
 
+// HAS TO BE FREED
 char *generate_makefile(const char *project, lang_t lang) {
     const char *compiler, *compiler_bin, *ext;
 
@@ -96,16 +101,7 @@ char *generate_makefile(const char *project, lang_t lang) {
         return NULL;
     }
 
-    const char *tmpl = makefile_template();
-    char *result = NULL;
-
-    if (asprintf(&result, tmpl, compiler, compiler_bin, project, ext, ext, ext,
-                 compiler, compiler, compiler) == -1) {
-        perr("failed to allocate memory for Makefile");
-        return NULL;
-    }
-
-    return result;
+    return makefile_template(compiler, compiler_bin, project, ext);
 }
 
 const char *compile_flags(void) { return "-Iinclude"; }

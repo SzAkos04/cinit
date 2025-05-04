@@ -26,7 +26,7 @@ endif
 BUILD_DATE := $(shell date +"%Y-%m-%d %H:%M:%S")
 BUILD_INFO := -DVERSION='"$(VERSION)"' -DBUILD_DATE='"$(BUILD_DATE)"'
 
-.PHONY: all build release clean
+.PHONY: all build release linux_install clean
 
 all: build
 
@@ -39,8 +39,13 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 $(BUILD_DIR)/$(PROJECT): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS) $(BUILD_INFO)
 
-release: BUILD_ARGS+=-O3 -B
+release: BUILD_ARGS+=-O3
 release: build
+
+linux_install: release
+	sudo cp $(BUILD_DIR)/$(PROJECT) /usr/local/bin
+	sudo mkdir -p /usr/local/man/man1/
+	sudo cp $(PROJECT).1 /usr/local/man/man1/
 
 CLEAN := rm -rf $(BUILD_DIR)
 
