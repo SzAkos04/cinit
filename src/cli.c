@@ -2,7 +2,6 @@
 
 #include "debug.h"
 #include "fs_utils.h"
-#include "project.h"
 
 #include <ctype.h>
 #include <stdlib.h>

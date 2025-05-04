@@ -87,8 +87,7 @@ int project_generate(cli_options_t opts) {
         free(relative);
         return 1;
     }
-    char *makefile =
-        (opts.lang == LANG_C) ? makefile_c(opts.name) : makefile_cpp(opts.name);
+    char *makefile = generate_makefile(opts.name, opts.lang);
     if (!makefile) {
         free(path);
         free(relative);
@@ -146,12 +145,19 @@ int project_generate(cli_options_t opts) {
     return 0;
 }
 
+#ifndef VERSION
+#define VERSION "UNKNOWN"
+#endif
+#ifndef BUILD_DATE
+#define BUILD_DATE "UNKNOWN"
+#endif
+
 void version(void) {
-    printf("%scinit v0.0.2%s\n", BOLD, RESET);
+    printf("%scinit v0.0.3%s\n", BOLD, RESET);
     printf("%sGit commit%s: %s\n", BOLD, RESET, VERSION);
     printf("%sBuilt on  %s: %s\n", BOLD, RESET, BUILD_DATE);
     // TODO: update release date before publishing
-    printf("%sRelease   %s: 24/04/2025\n", BOLD, RESET);
+    printf("%sRelease   %s: 04/05/2025\n", BOLD, RESET);
 }
 
 void help(void) {

@@ -5,6 +5,9 @@ LDFLAGS ?=
 INCLUDES := -Iinclude
 SRC_DIR := src
 SRC := $(wildcard $(SRC_DIR)/*.c)
+ifeq ($(SRC),)
+$(error No source files found in $(SRC_DIR))
+endif
 DEP := $(OBJ:.o=.d)
 ifneq ($(MAKECMDGOALS),clean)
 	-include $(wildcard $(DEP))
@@ -23,7 +26,7 @@ endif
 BUILD_DATE := $(shell date +"%Y-%m-%d %H:%M:%S")
 BUILD_INFO := -DVERSION='"$(VERSION)"' -DBUILD_DATE='"$(BUILD_DATE)"'
 
-.PHONY: all build clean
+.PHONY: all build release clean
 
 all: build
 
@@ -31,13 +34,19 @@ build: $(BUILD_DIR)/$(PROJECT)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@ $(INCLUDES) $(BUILD_ARGS) $(BUILD_INFO)
+	$(CC) $(CFLAGS) -MMD -MP -c "$<" -o "$@" $(INCLUDES) $(BUILD_ARGS) $(BUILD_INFO)
 
 $(BUILD_DIR)/$(PROJECT): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS) $(BUILD_INFO)
 
-release:
-	$(MAKE) BUILD_ARGS="-O3" -B
+release: BUILD_ARGS+=-O3 -B
+release: build
+
+CLEAN := rm -rf $(BUILD_DIR)
+
+ifeq ($(OS),Windows_NT)
+	CLEAN = rmdir /s /q $(BUILD_DIR)
+endif
 
 clean:
-	rm -rf $(BUILD_DIR)
+	$(CLEAN)
