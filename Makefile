@@ -23,7 +23,7 @@ ifeq ($(shell git rev-parse --is-inside-work-tree 2>/dev/null),true)
 else
     VERSION := "unknown"
 endif
-BUILD_DATE := $(shell date +"%Y-%m-%d %H:%M:%S")
+BUILD_DATE := $(shell date +"%d/%m/%Y %H:%M:%S")
 BUILD_INFO := -DVERSION='"$(VERSION)"' -DBUILD_DATE='"$(BUILD_DATE)"'
 
 .PHONY: all build release linux_install clean

@@ -17,6 +17,45 @@ cli_options_t opts_default(void) {
     };
 }
 
+static int parse_long_arg(const char *arg, cli_options_t *opts) {
+    if (strcmp(arg, "--c") == 0) {
+        opts->lang = LANG_C;
+    } else if (strcmp(arg, "--cpp") == 0) {
+        opts->lang = LANG_CPP;
+    } else if (strcmp(arg, "--version") == 0) {
+        opts->show_version = true;
+    } else if (strcmp(arg, "--help") == 0) {
+        opts->show_help = true;
+    } else {
+        error("unknown argument `%s`, "
+              "for more info run `cinit --help`",
+              arg);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int parse_short_arg(const char *arg, int arg_len, cli_options_t *opts) {
+    for (int j = 1; j < arg_len; ++j) {
+        switch (arg[j]) {
+        case 'v':
+            opts->show_version = true;
+            break;
+        case 'h':
+            opts->show_help = true;
+            break;
+        default:
+            error("unknown argument `-%c`, "
+                  "for more info run `cinit --help`",
+                  arg[j]);
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int parse_cli(int argc, char **argv, cli_options_t *opts) {
     if (argc < 2) {
         error("incorrect usage, for help run `cinit --help`");
@@ -34,35 +73,12 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
                 return -1;
             }
             if (arg[1] == '-') { // long arguments
-                if (strcmp(arg, "--c") == 0) {
-                    opts->lang = LANG_C;
-                } else if (strcmp(arg, "--cpp") == 0) {
-                    opts->lang = LANG_CPP;
-                } else if (strcmp(arg, "--version") == 0) {
-                    opts->show_version = true;
-                } else if (strcmp(arg, "--help") == 0) {
-                    opts->show_help = true;
-                } else {
-                    error("unknown argument `%s`, "
-                          "for more info run `cinit --help`",
-                          arg);
+                if (parse_long_arg(arg, opts) != 0) {
                     return -1;
                 }
             } else { // short arguments
-                for (int j = 1; j < arg_len; ++j) {
-                    switch (arg[j]) {
-                    case 'v':
-                        opts->show_version = true;
-                        break;
-                    case 'h':
-                        opts->show_help = true;
-                        break;
-                    default:
-                        error("unknown argument `-%c`, "
-                              "for more info run `cinit --help`",
-                              arg[j]);
-                        return -1;
-                    }
+                if (parse_short_arg(arg, arg_len, opts) != 0) {
+                    return -1;
                 }
             }
         } else { // commands
