@@ -21,7 +21,7 @@ OBJ := $(SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 ifeq ($(shell git rev-parse --is-inside-work-tree 2>/dev/null),true)
     VERSION := $(shell git describe --tags --always --dirty)
 else
-    VERSION := "unknown"
+    VERSION := unknown
 endif
 BUILD_DATE := $(shell date +"%d/%m/%Y %H:%M:%S")
 BUILD_INFO := -DVERSION='"$(VERSION)"' -DBUILD_DATE='"$(BUILD_DATE)"'
@@ -37,7 +37,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -MMD -MP -c "$<" -o "$@" $(INCLUDES) $(BUILD_ARGS) $(BUILD_INFO)
 
 $(BUILD_DIR)/$(PROJECT): $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS) $(BUILD_INFO)
+	$(CC) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS)
 
 release: BUILD_ARGS+=-O3
 release: build

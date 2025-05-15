@@ -56,7 +56,7 @@ build: $(BUILD_DIR)/$(PROJECT)\n\
 \n\
 $(BUILD_DIR)/%%.o: $(SRC_DIR)/%%.%s\n\
 \t@mkdir -p $(@D)\n\
-\t$(%s) $(CFLAGS) -MMD -MP -c $< -o $@ $(INCLUDES) $(BUILD_ARGS)\n\
+\t$(%s) $(CFLAGS) -MMD -MP -c \"$<\" -o \"$@\" $(INCLUDES) $(BUILD_ARGS)\n\
 \n\
 $(BUILD_DIR)/$(PROJECT): $(OBJ)\n\
 \t$(%s) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS)\n\
