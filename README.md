@@ -23,27 +23,19 @@ git clone https://github.com/SzAkos04/cinit
 cd cinit
 ```
 
-### On Linux
-
-#### Install the application
+### Install the application
 
 ```bash
-make linux_install
+sudo make install
 ```
 
-This copies the binary to `/usr/local/bin/` and the manpage to `/usr/local/man/man1/`
+#### On Linux
 
-### On Windows
+Copies the binary to `/usr/local/bin/` and the man page to `/usr/local/man/man1/`
 
-#### Build the binary:
+#### On Windows
 
-```bash
-make release
-```
-
-#### Add the binary to path
-
-Add the `build/` directory to your system's environment `PATH`.
+You have to add the `build/` directory to your system's environment `PATH` manually.
 
 
 ## Usage
