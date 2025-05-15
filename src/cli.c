@@ -148,7 +148,7 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
 void opts_free(cli_options_t *opts) { free(opts->path); }
 
 bool is_correct_name(const char *str) {
-    if (!isalpha(str[0])) {
+    if (!isalnum(str[0])) {
         return false;
     }
     int len = strlen(str);
