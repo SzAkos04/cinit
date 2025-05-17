@@ -4,7 +4,7 @@
 #include "project.h"
 
 int main(int argc, char **argv) {
-    cli_options_t opts = opts_default();
+    cli_options_t opts;
     if (parse_cli(argc, argv, &opts) != 0) {
         opts_free(&opts);
         return EXIT_FAILURE;

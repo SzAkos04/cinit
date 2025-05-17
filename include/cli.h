@@ -14,7 +14,6 @@ typedef struct {
     char *path;
 } cli_options_t;
 
-cli_options_t opts_default(void);
 int parse_cli(int argc, char **argv, cli_options_t *opts);
 
 void opts_free(cli_options_t *);

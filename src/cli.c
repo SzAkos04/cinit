@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-cli_options_t opts_default(void) {
+static cli_options_t opts_default(void) {
     return (cli_options_t){
         .lang = LANG_C,
         .show_version = false,
@@ -57,6 +57,7 @@ static int parse_short_arg(const char *arg, int arg_len, cli_options_t *opts) {
 }
 
 int parse_cli(int argc, char **argv, cli_options_t *opts) {
+    *opts = opts_default();
     if (argc < 2) {
         error("incorrect usage, for help run `cinit --help`");
         return -1;
@@ -140,6 +141,11 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
                 return -1;
             }
         }
+    }
+
+    if (!opts->name) {
+        error("incorrect usage, for help run `cinit --help`");
+        return -1;
     }
 
     return 0;
