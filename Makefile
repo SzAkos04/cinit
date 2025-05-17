@@ -83,7 +83,7 @@ uninstall: clean
 	$(ECHO) "$(CYAN)[UNINSTALL]$(RESET) Removing binary from $(BIN_DIR)..."
 	@$(RM) -r $(BIN_DIR)/$(PROJECT)
 	$(ECHO) "$(GREEN)[OK]$(RESET) Binary removed from $(BIN_DIR)"
-	$(ECHO) "$(CYAN)[INSTALL]$(RESET) Removing man page from $(MAN_DIR)..."
+	$(ECHO) "$(CYAN)[UNINSTALL]$(RESET) Removing man page from $(MAN_DIR)..."
 	@$(RM) -r $(MAN_DIR)/$(PROJECT).1
 	$(ECHO) "$(GREEN)[OK]$(RESET) Man page removed from $(MAN_DIR)"
 endif

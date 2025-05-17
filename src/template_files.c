@@ -48,6 +48,12 @@ endif\n\
 BUILD_DIR := build\n\
 BUILD_ARGS ?= -DDEBUG\n\
 OBJ := $(SRC:$(SRC_DIR)/%%.%s=$(BUILD_DIR)/%%.o)\n\
+\n\
+GREEN := $(shell printf '\033[0;32m')\n\
+CYAN := $(shell printf '\033[0;36m')\n\
+RESET := $(shell printf '\033[0m')\n\
+ECHO = @echo\n\
+\n\
 .PHONY: all build release run clean\n\
 \n\
 all: run\n\
@@ -56,24 +62,31 @@ build: $(BUILD_DIR)/$(PROJECT)\n\
 \n\
 $(BUILD_DIR)/%%.o: $(SRC_DIR)/%%.%s\n\
 \t@mkdir -p $(@D)\n\
-\t$(%s) $(CFLAGS) -MMD -MP -c \"$<\" -o \"$@\" $(INCLUDES) $(BUILD_ARGS)\n\
+\t$(ECHO) \"$(CYAN)[BUILD]$(RESET) Compiling $<...\"\n\
+\t@$(%s) $(CFLAGS) -MMD -MP -c \"$<\" -o \"$@\" $(INCLUDES) $(BUILD_ARGS)\n\
 \n\
 $(BUILD_DIR)/$(PROJECT): $(OBJ)\n\
-\t$(%s) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS)\n\
+\t$(ECHO) \"$(CYAN)[LINK]$(RESET) Creating binary at $@\"\n\
+\t@$(%s) $(CFLAGS) $^ -o $@ $(INCLUDES) $(LDFLAGS) $(BUILD_ARGS)\n\
+\t$(ECHO) \"$(GREEN)[OK]$(RESET) Build complete: $@\"\n\
 \n\
-release: BUILD_ARGS+=-O3\n\
-release: build\n\
+release:\n\
+\t$(ECHO) \"$(CYAN)[RELEASE]$(RESET) Building release version...\"\n\
+\t@$(MAKE) -B build BUILD_ARGS=-O3\n\
 \n\
 run: build\n\
 \t@./$(BUILD_DIR)/$(PROJECT) $(ARGS)\n\
 \n\
-CLEAN := rm -rf $(BUILD_DIR)\n\
-ifeq ($(OS),Windows_NT)\n\
-\tCLEAN = rmdir /s /q $(BUILD_DIR)\n\
-endif\n\
-\n\
 clean:\n\
-\t$(CLEAN)\
+\t$(ECHO) \"$(CYAN)[CLEAN]$(RESET) Removing build directory...\"\n\
+\t@$(RM) -r $(BUILD_DIR)\n\
+\t$(ECHO) \"$(GREEN)[OK]$(RESET) Clean complete.\"\n\
+\n\
+help:\n\
+\t$(ECHO) \"$(CYAN)[HELP]$(RESET) Available targets:\"\n\
+\t$(ECHO) \"$(CYAN)[HELP]$(RESET)   build     - Compile the project\"\n\
+\t$(ECHO) \"$(CYAN)[HELP]$(RESET)   release   - Build with -O3 optimizations\"\n\
+\t$(ECHO) \"$(CYAN)[HELP]$(RESET)   clean     - Remove build files\"\
 ",
                  compiler, compiler_bin, project, ext, ext, ext, compiler,
                  compiler) == -1) {
