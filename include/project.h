@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-int project_generate(cli_options_t opts);
+int project_generate(const cli_options_t *opts);
 
 void version(void);
 void help(void);

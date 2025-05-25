@@ -4,8 +4,12 @@
 #include "fs_utils.h"
 
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
+bool use_color = true;
+bool silent = false;
 
 static cli_options_t opts_default(void) {
     return (cli_options_t){
@@ -26,6 +30,10 @@ static int parse_long_arg(const char *arg, cli_options_t *opts) {
         opts->show_version = true;
     } else if (strcmp(arg, "--help") == 0) {
         opts->show_help = true;
+    } else if (strcmp(arg, "--silent") == 0) {
+        silent = true;
+    } else if (strcmp(arg, "--no-color") == 0) {
+        use_color = false;
     } else {
         error("unknown argument `%s`, "
               "for more info run `cinit --help`",
@@ -36,9 +44,9 @@ static int parse_long_arg(const char *arg, cli_options_t *opts) {
     return 0;
 }
 
-static int parse_short_arg(const char *arg, int arg_len, cli_options_t *opts) {
-    for (int j = 1; j < arg_len; ++j) {
-        switch (arg[j]) {
+static int parse_short_arg(const char *arg, cli_options_t *opts) {
+    for (int i = 1; arg[i]; ++i) {
+        switch (arg[i]) {
         case 'v':
             opts->show_version = true;
             break;
@@ -48,7 +56,7 @@ static int parse_short_arg(const char *arg, int arg_len, cli_options_t *opts) {
         default:
             error("unknown argument `-%c`, "
                   "for more info run `cinit --help`",
-                  arg[j]);
+                  arg[i]);
             return -1;
         }
     }
@@ -65,9 +73,8 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
 
     for (int i = 1; i < argc; ++i) {
         const char *arg = argv[i];
-        int arg_len = strlen(arg);
         if (arg[0] == '-') { // arguments
-            if (arg_len < 2) {
+            if (strlen(arg) < 2) {
                 error("unknown argument `%s`, "
                       "for more info run `cinit --help`",
                       arg);
@@ -78,7 +85,7 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
                     return -1;
                 }
             } else { // short arguments
-                if (parse_short_arg(arg, arg_len, opts) != 0) {
+                if (parse_short_arg(arg, opts) != 0) {
                     return -1;
                 }
             }
@@ -120,8 +127,8 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
                     // if it doesn't the next argument is
                     // expected to be the name of the project
                 } else {
-                    warning(
-                        "no name provided, using the name of the directory");
+                    warning("no name provided, using the name of the "
+                            "directory");
                     // find the current folders name by finding the last
                     // separator in the path
                     char *last_sep = strrchr(opts->path, PATH_SEPARATOR);
@@ -143,7 +150,7 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
         }
     }
 
-    if (!opts->name) {
+    if (!opts->name && !opts->show_version && !opts->show_help) {
         error("incorrect usage, for help run `cinit --help`");
         return -1;
     }
@@ -151,17 +158,19 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
     return 0;
 }
 
-void opts_free(cli_options_t *opts) { free(opts->path); }
+void opts_free(cli_options_t *opts) {
+    free(opts->path);
+    opts->path = NULL;
+}
 
 bool is_correct_name(const char *str) {
     if (!isalnum(str[0])) {
         return false;
     }
-    int len = strlen(str);
-    if (len > 32) {
+    if (strlen(str) > 32) {
         return false;
     }
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; str[i]; i++) {
         if (!(isalnum(str[i]) || str[i] == '_')) {
             return false;
         }

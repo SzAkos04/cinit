@@ -11,10 +11,10 @@
 #include <string.h>
 #include <time.h>
 
-int project_generate(cli_options_t opts) {
+int project_generate(const cli_options_t *opts) {
     clock_t start = clock();
 
-    log("Generating files for `%s%s%s`", BOLD, opts.name, RESET);
+    info("Generating files for `%s%s%s`", BOLD, opts->name, RESET);
 
     // get current path
     char *cur_dir = current_dir();
@@ -30,16 +30,16 @@ int project_generate(cli_options_t opts) {
     }
 
     // create the project folder if it doesn't already exist
-    if (strcmp(opts.path, cur_dir) != 0) {
-        if (create_dir(opts.path) != 0) {
-            perr("failed to create `%s` folder", opts.path);
+    if (strcmp(opts->path, cur_dir) != 0) {
+        if (create_dir(opts->path) != 0) {
+            perr("failed to create `%s` folder", opts->path);
             free(relative);
             free(cur_dir);
             return 1;
         }
         char *tmp = strdup(relative);
         free(relative);
-        if (asprintf(&relative, "%s%s", tmp, opts.name) == -1) {
+        if (asprintf(&relative, "%s%s", tmp, opts->name) == -1) {
             perr("failed to allocate memory for relative path");
             free(tmp);
             free(cur_dir);
@@ -59,7 +59,7 @@ int project_generate(cli_options_t opts) {
     }
     if (create_dir(path) != 0) {
         perr("failed to create `%s` folder",
-             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -74,7 +74,7 @@ int project_generate(cli_options_t opts) {
     }
     if (create_dir(path) != 0) {
         perr("failed to create `%s` folder",
-             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -87,7 +87,7 @@ int project_generate(cli_options_t opts) {
         free(relative);
         return 1;
     }
-    char *makefile = generate_makefile(opts.name, opts.lang);
+    char *makefile = generate_makefile(opts->name, opts->lang);
     if (!makefile) {
         free(path);
         free(relative);
@@ -95,7 +95,7 @@ int project_generate(cli_options_t opts) {
     }
     if (write_file(path, makefile) != 0) {
         perr("failed to write to `%s`",
-             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
         free(makefile);
         free(path);
         free(relative);
@@ -106,14 +106,15 @@ int project_generate(cli_options_t opts) {
 
     // create `main.c(pp)`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
-                 (opts.lang == LANG_C) ? "src/main.c" : "src/main.cpp") == -1) {
+                 (opts->lang == LANG_C) ? "src/main.c" : "src/main.cpp") ==
+        -1) {
         perr("failed to allocate memory for path");
         free(relative);
         return 1;
     }
-    if (write_file(path, (opts.lang == LANG_C) ? main_c() : main_cpp()) != 0) {
+    if (write_file(path, (opts->lang == LANG_C) ? main_c() : main_cpp()) != 0) {
         perr("failed to write to `%s`",
-             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -129,7 +130,7 @@ int project_generate(cli_options_t opts) {
     }
     if (write_file(path, compile_flags()) != 0) {
         perr("failed to write to `%s`",
-             strcat(opts.path, strchr(path, PATH_SEPARATOR) + 1));
+             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
         free(path);
         free(relative);
         return 1;
@@ -141,7 +142,7 @@ int project_generate(cli_options_t opts) {
     double time_taken = (double)(end - start) * 1000.0 / CLOCKS_PER_SEC;
 
     success("Generated %sproject%s `%s%s%s` in %s%.2fms%s", DIM, RESET, BOLD,
-            opts.name, RESET, CYAN, time_taken, RESET);
+            opts->name, RESET, CYAN, time_taken, RESET);
     return 0;
 }
 
@@ -153,7 +154,7 @@ int project_generate(cli_options_t opts) {
 #endif
 
 void version(void) {
-    printf("%scinit v0.0.4%s\n", BOLD, RESET);
+    printf("%scinit v0.0.5%s\n", BOLD, RESET);
     printf("%sGit commit%s: %s\n", BOLD, RESET, VERSION);
     printf("%sBuilt on  %s: %s\n", BOLD, RESET, BUILD_DATE);
     // TODO: update release date before publishing

@@ -10,7 +10,7 @@ typedef struct {
     bool show_version;
     bool show_help;
     cmd_t cmd;
-    const char *name;
+    char *name;
     char *path;
 } cli_options_t;
 

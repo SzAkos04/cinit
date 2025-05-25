@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
         return EXIT_SUCCESS;
     }
 
-    int ret = project_generate(opts) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+    int ret = project_generate(&opts) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 
     opts_free(&opts);
 

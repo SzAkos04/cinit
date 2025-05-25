@@ -51,17 +51,18 @@ cinit --help                    # Show help message
 | ------------- | -------------------------------------------------------- |
 | `create`, `c` | Create a project in a **new** directory                  |
 | `init`, `i`   | Initialize a project in the **current** directory        |
-| `name`        | Project name (alphanumeric or underscores, max 32 chars) |
+| `name`        | Project name (alphanumeric or underscores)               |
 
 
 ### Options
 
-| Option      | Description                   |
-| ----------- | ----------------------------- |
-| `--c`       | Set language to C *(default)* |
-| `--cpp`     | Set language to C++           |
-| `--help`    | Show help message             |
-| `--version` | Show installed version        |
+| Option       | Description                   |
+| ------------ | ----------------------------- |
+| `--c`        | Set language to C *(default)* |
+| `--cpp`      | Set language to C++           |
+| `--help`     | Show help message             |
+| `--version`  | Show installed version        |
+| `--no-color` | Disable output coloring       |
 
 
 ### Examples

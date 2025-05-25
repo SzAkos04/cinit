@@ -1,16 +1,15 @@
-.TH cinit 1 "2025-05-05" "1.0" "Project Initialization Tool"
+.TH cinit 1 "2025-05-25" "cinit 0.0.5" "Project Initialization Tool"
 .SH NAME
 cinit \- A tool for initializing new C/C++ projects
 
 .SH SYNOPSIS
 .B cinit
-[\fIcreate\fR | \fIc\fR] \fIname\fR <args>
+.RI [ create " | " c ] " name " [ options ]
 
 .B cinit
-[\fIinit\fR | \fIi\fR] ([\fIname\fR]) <args>
+.RI [ init " | " i ] [ name ] [ options ]
 
-.B cinit
---help
+.B cinit --help
 
 .SH DESCRIPTION
 cinit is a command-line tool used to create new projects in C or C++. It allows you to initialize a project in the current directory or in a specified directory. The tool sets up the basic structure for a new C/C++ project, making it easy to get started with development.
@@ -26,7 +25,7 @@ Create a new project in the current directory.
 
 .TP
 .B name
-The name of the project. This must be alphanumeric or use underscores only. Maximum length for the name is 32 characters.
+The name of the project. Must contain only alphanumeric characters or underscores.
 
 .TP
 .B --c
@@ -44,6 +43,14 @@ Show the help message and exit.
 .B --version
 Show the installed version of the tool.
 
+.TP
+.B --silent
+Disables output
+
+.TP
+.B --no-color
+Disables output coloring
+
 .SH EXAMPLES
 .TP
 .B cinit init my_project
@@ -60,3 +67,10 @@ Creates a new C++ project called 'my_project'.
 .SH SEE ALSO
 For more information, visit:
 https://github.com/SzAkos04/cinit
+
+.SH AUTHOR
+Written by SzAkos04.
+
+.SH BUGS
+Report issues at:
+https://github.com/SzAkos04/cinit/issues
