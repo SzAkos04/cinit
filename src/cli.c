@@ -67,6 +67,86 @@ static int parse_short_arg(const char *arg, cli_options_t *opts) {
     return 0;
 }
 
+static int parse_arg(const char *arg, cli_options_t *opts) {
+    if (strlen(arg) < 2) {
+        error("unknown argument `%s`, "
+              "for more info run `cinit --help`",
+              arg);
+        return -1;
+    }
+
+    if (arg[1] == '-') { // long arguments
+        if (parse_long_arg(arg, opts) != 0) {
+            return -1;
+        }
+    } else { // short arguments
+        if (parse_short_arg(arg, opts) != 0) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+static int handle_create_command(int argc, char **argv, int *i,
+                                 cli_options_t *opts) {
+    if (*i + 1 >= argc || !is_correct_name(argv[*i + 1])) {
+        error("incorrect usage, for help run `cinit --help`");
+        return -1;
+    }
+    opts->name = argv[++(*i)];
+    char *cur_dir = current_dir();
+    if (!cur_dir) {
+        perr("failed to get current path");
+        return -1;
+    }
+
+    int path_len = strlen(cur_dir) + strlen(opts->name) + 2;
+    opts->path = (char *)malloc(path_len + 1);
+    if (!opts->path) {
+        perr("failed to allocate memory for path");
+        free(cur_dir);
+        return -1;
+    }
+    snprintf(opts->path, path_len, "%s%c%s", cur_dir, PATH_SEPARATOR,
+             opts->name);
+    free(cur_dir);
+
+    return 0;
+}
+
+static int handle_init_command(int argc, char **argv, int *i,
+                               cli_options_t *opts) {
+    opts->path = current_dir();
+    if (!opts->path) {
+        perr("failed to get current path");
+        return -1;
+    }
+
+    if (*i + 1 < argc && is_correct_name(argv[*i + 1])) {
+        opts->name = argv[++(*i)];
+    } else {
+        warning("no name provided, using the name of the directory");
+        char *last_sep = strrchr(opts->path, PATH_SEPARATOR);
+        opts->name =
+            (last_sep && *(last_sep + 1) != '\0') ? last_sep + 1 : opts->path;
+    }
+
+    return 0;
+}
+
+static int handle_command(const char *arg, int argc, char **argv, int *i,
+                          cli_options_t *opts) {
+    if (strcmp(arg, "create") == 0 || strcmp(arg, "c") == 0) {
+        return handle_create_command(argc, argv, i, opts);
+    } else if (strcmp(arg, "init") == 0 || strcmp(arg, "i") == 0) {
+        return handle_init_command(argc, argv, i, opts);
+    } else {
+        error("unknown command `%s`, for more info run `cinit --help`", arg);
+        return -1;
+    }
+}
+
 int parse_cli(int argc, char **argv, cli_options_t *opts) {
     *opts = opts_default();
     if (argc < 2) {
@@ -77,67 +157,11 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
     for (int i = 1; i < argc; ++i) {
         const char *arg = argv[i];
         if (arg[0] == '-') { // arguments
-            if (strlen(arg) < 2) {
-                error("unknown argument `%s`, "
-                      "for more info run `cinit --help`",
-                      arg);
+            if (parse_arg(arg, opts) != 0) {
                 return -1;
             }
-            if (arg[1] == '-') { // long arguments
-                if (parse_long_arg(arg, opts) != 0) {
-                    return -1;
-                }
-            } else { // short arguments
-                if (parse_short_arg(arg, opts) != 0) {
-                    return -1;
-                }
-            }
         } else { // commands
-            if (strcmp(arg, "create") == 0 || strcmp(arg, "c") == 0) {
-                if (i + 1 < argc && is_correct_name(argv[i + 1])) {
-                    opts->name = argv[++i];
-                } else {
-                    error("incorrect usage, for help run `cinit --help`");
-                    return -1;
-                }
-
-                char *cur_dir = current_dir();
-                if (!cur_dir) {
-                    perr("failed to get current path");
-                    return -1;
-                }
-
-                int path_len = strlen(cur_dir) + strlen(opts->name) + 2;
-                opts->path = (char *)malloc(path_len + 1);
-                snprintf(opts->path, path_len, "%s%c%s", cur_dir,
-                         PATH_SEPARATOR, opts->name);
-
-                free(cur_dir);
-            } else if (strcmp(arg, "init") == 0 || strcmp(arg, "i") == 0) {
-                // create the project in the current directory
-                opts->path = current_dir();
-                if (!opts->path) {
-                    perr("failed to get current path");
-                    return -1;
-                }
-
-                if (i + 1 < argc && is_correct_name(argv[i + 1])) {
-                    opts->name = argv[++i];
-                } else {
-                    warning("no name provided, using the name of the "
-                            "directory");
-                    char *last_sep = strrchr(opts->path, PATH_SEPARATOR);
-                    if (last_sep && *(last_sep + 1) != '\0') {
-                        opts->name = last_sep + 1;
-                    } else {
-                        opts->name = opts->path;
-                    }
-                }
-
-            } else {
-                error("unknown command `%s`, "
-                      "for more info run `cinit --help`",
-                      arg);
+            if (handle_command(arg, argc, argv, &i, opts) != 0) {
                 return -1;
             }
         }

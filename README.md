@@ -63,6 +63,7 @@ cinit --help                    # Show help message
 | `--debug`    | Implement debugging (C and C++) |
 | `--help`     | Show help message               |
 | `--version`  | Show installed version          |
+| `--silent`   | Disable output (except errors)  |
 | `--no-color` | Disable output coloring         |
 
 
