@@ -12,6 +12,7 @@ typedef struct {
     cmd_t cmd;
     char *name;
     char *path;
+    bool implement_debug;
 } cli_options_t;
 
 int parse_cli(int argc, char **argv, cli_options_t *opts);

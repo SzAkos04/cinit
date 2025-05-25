@@ -11,95 +11,92 @@
 #include <string.h>
 #include <time.h>
 
-int project_generate(const cli_options_t *opts) {
-    clock_t start = clock();
-
-    info("Generating files for `%s%s%s`", BOLD, opts->name, RESET);
-
-    // get current path
+// MUST BE FREED
+static int define_relative(const cli_options_t *opts, char **relative) {
     char *cur_dir = current_dir();
     if (!cur_dir) {
         perr("failed to get current path");
-        return 1;
+        return -1;
     }
 
-    char *relative = NULL;
-    if (asprintf(&relative, ".%c", PATH_SEPARATOR) == -1) {
+    *relative = NULL;
+    if (asprintf(relative, ".%c", PATH_SEPARATOR) == -1) {
         perr("failed to allocate memory for relative path");
-        return 1;
+        free(cur_dir);
+        return -1;
     }
 
     // create the project folder if it doesn't already exist
     if (strcmp(opts->path, cur_dir) != 0) {
         if (create_dir(opts->path) != 0) {
             perr("failed to create `%s` folder", opts->path);
-            free(relative);
+            free(*relative);
             free(cur_dir);
-            return 1;
+            return -1;
         }
-        char *tmp = strdup(relative);
-        free(relative);
-        if (asprintf(&relative, "%s%s", tmp, opts->name) == -1) {
+        char *tmp = strdup(*relative);
+        free(*relative);
+        if (asprintf(relative, "%s%s", tmp, opts->name) == -1) {
             perr("failed to allocate memory for relative path");
             free(tmp);
             free(cur_dir);
-            return 1;
+            return -1;
         }
         free(tmp);
     }
     free(cur_dir);
 
+    return 0;
+}
+
+static int create_dirs(const char *relative) {
     char *path = NULL;
 
-    // create the `src/` folder
-    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "src") == -1) {
-        perr("failed to allocate memory for path");
-        free(relative);
-        return 1;
+    // create `src/`
+    if (asprintf(&path, "%s%csrc", relative, PATH_SEPARATOR) == -1) {
+        perr("failed to allocate memory for `src` path");
+        return -1;
     }
     if (create_dir(path) != 0) {
-        perr("failed to create `%s` folder",
-             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
+        perr("failed to create `%s` folder", path + 2);
         free(path);
-        free(relative);
-        return 1;
+        return -1;
     }
     free(path);
 
-    // create the `include/` folder
-    if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "include") == -1) {
-        perr("failed to allocate memory for path");
-        free(relative);
-        return 1;
+    // create `include/`
+    if (asprintf(&path, "%s%cinclude", relative, PATH_SEPARATOR) == -1) {
+        perr("failed to allocate memory for `include` path");
+        return -1;
     }
     if (create_dir(path) != 0) {
-        perr("failed to create `%s` folder",
-             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
+        perr("failed to create `%s` folder", path + 2);
         free(path);
-        free(relative);
-        return 1;
+        return -1;
     }
     free(path);
+
+    return 0;
+}
+
+static int create_files(const cli_options_t *opts, char *relative) {
+    char *path = NULL;
 
     // create `Makefile`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "Makefile") == -1) {
         perr("failed to allocate memory for path");
-        free(relative);
-        return 1;
+        return -1;
     }
     char *makefile = generate_makefile(opts->name, opts->lang);
     if (!makefile) {
         free(path);
-        free(relative);
-        return 1;
+        return -1;
     }
     if (write_file(path, makefile) != 0) {
-        perr("failed to write to `%s`",
-             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
+        perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
         free(makefile);
         free(path);
-        free(relative);
-        return 1;
+        return -1;
     }
     free(makefile);
     free(path);
@@ -109,15 +106,12 @@ int project_generate(const cli_options_t *opts) {
                  (opts->lang == LANG_C) ? "src/main.c" : "src/main.cpp") ==
         -1) {
         perr("failed to allocate memory for path");
-        free(relative);
-        return 1;
+        return -1;
     }
     if (write_file(path, (opts->lang == LANG_C) ? main_c() : main_cpp()) != 0) {
-        perr("failed to write to `%s`",
-             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
+        perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
         free(path);
-        free(relative);
-        return 1;
+        return -1;
     }
     free(path);
 
@@ -125,17 +119,61 @@ int project_generate(const cli_options_t *opts) {
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                  "compile_flags.txt") == -1) {
         perr("failed to allocate memory for path");
-        free(relative);
-        return 1;
+        return -1;
     }
     if (write_file(path, compile_flags()) != 0) {
-        perr("failed to write to `%s`",
-             strcat(opts->path, strchr(path, PATH_SEPARATOR) + 1));
+        perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
         free(path);
-        free(relative);
-        return 1;
+        return -1;
     }
     free(path);
+
+    if (opts->implement_debug) {
+        char *src = (opts->lang == LANG_C ? debug_h(opts->name)
+                                          : debug_hpp(opts->name));
+        if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
+                     (opts->lang == LANG_C ? "include/debug.h"
+                                           : "include/debug.hpp")) == -1) {
+            perr("failed to allocate memory for path");
+            return -1;
+        }
+
+        if (write_file(path, src) != 0) {
+            perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
+            free(src);
+            free(path);
+            return -1;
+        }
+        free(path);
+        free(src);
+        info("make sure to define `use_color` to enable output coloring "
+             "and `silent` to silence output in your source");
+    }
+
+    return 0;
+}
+
+int project_generate(const cli_options_t *opts) {
+    clock_t start = clock();
+
+    info("Generating files for `%s%s%s`", BOLD, opts->name, RESET);
+
+    // get current path
+    char *relative;
+    if (define_relative(opts, &relative) != 0) {
+        return -1;
+    }
+
+    if (create_dirs(relative) != 0) {
+        free(relative);
+        return -1;
+    }
+
+    if (create_files(opts, relative) != 0) {
+        free(relative);
+        return -1;
+    }
+
     free(relative);
 
     clock_t end = clock();

@@ -58,11 +58,12 @@ cinit --help                    # Show help message
 
 | Option       | Description                   |
 | ------------ | ----------------------------- |
-| `--c`        | Set language to C *(default)* |
-| `--cpp`      | Set language to C++           |
-| `--help`     | Show help message             |
-| `--version`  | Show installed version        |
-| `--no-color` | Disable output coloring       |
+| `--c`        | Set language to C *(default)*     |
+| `--cpp`      | Set language to C++             |
+| `--debug`    | Implement debugging (C and C++) |
+| `--help`     | Show help message               |
+| `--version`  | Show installed version          |
+| `--no-color` | Disable output coloring         |
 
 
 ### Examples

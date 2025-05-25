@@ -18,6 +18,7 @@ static cli_options_t opts_default(void) {
         .show_help = false,
         .cmd = CMD_NONE,
         .name = NULL,
+        .implement_debug = false,
     };
 }
 
@@ -30,6 +31,8 @@ static int parse_long_arg(const char *arg, cli_options_t *opts) {
         opts->show_version = true;
     } else if (strcmp(arg, "--help") == 0) {
         opts->show_help = true;
+    } else if (strcmp(arg, "--debug") == 0) {
+        opts->implement_debug = true;
     } else if (strcmp(arg, "--silent") == 0) {
         silent = true;
     } else if (strcmp(arg, "--no-color") == 0) {
@@ -110,7 +113,6 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
                          PATH_SEPARATOR, opts->name);
 
                 free(cur_dir);
-
             } else if (strcmp(arg, "init") == 0 || strcmp(arg, "i") == 0) {
                 // create the project in the current directory
                 opts->path = current_dir();
@@ -119,21 +121,12 @@ int parse_cli(int argc, char **argv, cli_options_t *opts) {
                     return -1;
                 }
 
-                // check if the next argument starts with `-`
-                // if it does the default name for the project is the name of
-                // the current folder
                 if (i + 1 < argc && is_correct_name(argv[i + 1])) {
                     opts->name = argv[++i];
-                    // if it doesn't the next argument is
-                    // expected to be the name of the project
                 } else {
                     warning("no name provided, using the name of the "
                             "directory");
-                    // find the current folders name by finding the last
-                    // separator in the path
                     char *last_sep = strrchr(opts->path, PATH_SEPARATOR);
-                    // if the current folder's name returns NULL, fallback to
-                    // the full path
                     if (last_sep && *(last_sep + 1) != '\0') {
                         opts->name = last_sep + 1;
                     } else {
