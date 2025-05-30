@@ -1,25 +1,46 @@
 #include "cli.h"
 
+#include "cinitrc.h"
 #include "debug.h"
 #include "fs_utils.h"
 
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 bool use_color = true;
 bool silent = false;
 
-static cli_options_t opts_default(void) {
-    return (cli_options_t){
-        .lang = LANG_C,
-        .show_version = false,
-        .show_help = false,
-        .cmd = CMD_NONE,
-        .name = NULL,
-        .implement_debug = false,
-    };
+static int opts_default(cli_options_t *opts) {
+    // check if there is a ~/.cinitrc file
+    const char *home = getenv("HOME");
+    if (!home) {
+        perr("opts_default: failed to resolve home directory");
+        return -1;
+    }
+
+    char path[512];
+    snprintf(path, sizeof(path), "%s/.cinitrc", home);
+
+    FILE *file = fopen(path, "rb");
+    if (file) {
+        if (parse_cinitrc(path, opts) != 0) {
+            return -1;
+        }
+    } else {
+        *opts = (cli_options_t){
+            .lang = LANG_C,
+            .show_version = false,
+            .show_help = false,
+            .cmd = CMD_NONE,
+            .name = NULL,
+            .implement_debug = false,
+        };
+    }
+
+    return 0;
 }
 
 static int parse_long_arg(const char *arg, cli_options_t *opts) {
@@ -97,14 +118,14 @@ static int handle_create_command(int argc, char **argv, int *i,
     opts->name = argv[++(*i)];
     char *cur_dir = current_dir();
     if (!cur_dir) {
-        perr("failed to get current path");
+        perr("handle_create_command: failed to get current path");
         return -1;
     }
 
     int path_len = strlen(cur_dir) + strlen(opts->name) + 2;
     opts->path = (char *)malloc(path_len + 1);
     if (!opts->path) {
-        perr("failed to allocate memory for path");
+        perr("handle_create_command: failed to allocate memory for path");
         free(cur_dir);
         return -1;
     }
@@ -119,7 +140,7 @@ static int handle_init_command(int argc, char **argv, int *i,
                                cli_options_t *opts) {
     opts->path = current_dir();
     if (!opts->path) {
-        perr("failed to get current path");
+        perr("handle_init_command: failed to get current path");
         return -1;
     }
 
@@ -148,7 +169,9 @@ static int handle_command(const char *arg, int argc, char **argv, int *i,
 }
 
 int parse_cli(int argc, char **argv, cli_options_t *opts) {
-    *opts = opts_default();
+    if (opts_default(opts) != 0) {
+        return -1;
+    }
     if (argc < 2) {
         error("incorrect usage, for help run `cinit --help`");
         return -1;

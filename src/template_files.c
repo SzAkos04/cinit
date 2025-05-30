@@ -90,7 +90,7 @@ help:\n\
 ",
                  compiler, compiler_bin, project, ext, ext, ext, compiler,
                  compiler) == -1) {
-        perr("failed to allocate memory for Makefile");
+        perr("makefile_tempalte: failed to allocate memory for Makefile");
         return NULL;
     }
 
@@ -110,7 +110,7 @@ char *generate_makefile(const char *project, lang_t lang) {
         compiler_bin = "g++";
         ext = "cpp";
     } else {
-        perr("unsupported language");
+        error("unsupported language");
         return NULL;
     }
 
@@ -222,7 +222,7 @@ extern bool silent;\n\
 ",
                  part1, project, project, project, project, project,
                  project) == -1) {
-        perr("failed to allocate memory for Makefile");
+        perr("debug_h: failed to allocate memory for Makefile");
         return NULL;
     }
 

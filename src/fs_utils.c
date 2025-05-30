@@ -36,6 +36,36 @@ int create_dir(const char *path) {
 #endif
 }
 
+// MUST BE FREED
+char *read_file(const char *filename, size_t *file_size) {
+    FILE *file = fopen(filename, "rb");
+    if (file == NULL) {
+        return NULL;
+    }
+
+    fseek(file, 0, SEEK_END);
+    *file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char *buffer = (char *)malloc(*file_size + 1);
+    if (buffer == NULL) {
+        fclose(file);
+        return NULL;
+    }
+
+    size_t bytesRead = fread(buffer, 1, *file_size, file);
+    if (bytesRead != *file_size) {
+        free(buffer);
+        fclose(file);
+        return NULL;
+    }
+
+    buffer[*file_size] = '\0';
+
+    fclose(file);
+    return buffer;
+}
+
 int write_file(const char *path, const char *contents) {
     FILE *outfile = fopen(path, "w");
     if (!outfile) {
