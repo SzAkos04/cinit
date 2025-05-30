@@ -15,13 +15,13 @@
 static int define_relative(const cli_options_t *opts, char **relative) {
     char *cur_dir = current_dir();
     if (!cur_dir) {
-        perr("define_relative: failed to get current path");
+        perr("failed to get current path");
         return -1;
     }
 
     *relative = NULL;
     if (asprintf(relative, ".%c", PATH_SEPARATOR) == -1) {
-        perr("define_relative: failed to allocate memory for relative path");
+        perr("failed to allocate memory for relative path");
         free(cur_dir);
         return -1;
     }
@@ -29,7 +29,7 @@ static int define_relative(const cli_options_t *opts, char **relative) {
     // create the project folder if it doesn't already exist
     if (strcmp(opts->path, cur_dir) != 0) {
         if (create_dir(opts->path) != 0) {
-            perr("define_relative: failed to create `%s` folder", opts->path);
+            perr("failed to create `%s` folder", opts->path);
             free(*relative);
             free(cur_dir);
             return -1;
@@ -37,8 +37,7 @@ static int define_relative(const cli_options_t *opts, char **relative) {
         char *tmp = strdup(*relative);
         free(*relative);
         if (asprintf(relative, "%s%s", tmp, opts->name) == -1) {
-            perr(
-                "define_relative: failed to allocate memory for relative path");
+            perr("failed to allocate memory for relative path");
             free(tmp);
             free(cur_dir);
             return -1;
@@ -55,11 +54,11 @@ static int create_dirs(const char *relative) {
 
     // create `src/`
     if (asprintf(&path, "%s%csrc", relative, PATH_SEPARATOR) == -1) {
-        perr("create_dirs: failed to allocate memory for `src` path");
+        perr("failed to allocate memory for `src` path");
         return -1;
     }
     if (create_dir(path) != 0) {
-        perr("create_dirs: failed to create `%s` folder", path + 2);
+        perr("failed to create `%s` folder", path + 2);
         free(path);
         return -1;
     }
@@ -67,11 +66,11 @@ static int create_dirs(const char *relative) {
 
     // create `include/`
     if (asprintf(&path, "%s%cinclude", relative, PATH_SEPARATOR) == -1) {
-        perr("create_dirs: failed to allocate memory for `include` path");
+        perr("failed to allocate memory for `include` path");
         return -1;
     }
     if (create_dir(path) != 0) {
-        perr("create_dirs: failed to create `%s` folder", path + 2);
+        perr("failed to create `%s` folder", path + 2);
         free(path);
         return -1;
     }
@@ -85,7 +84,7 @@ static int create_files(const cli_options_t *opts, char *relative) {
 
     // create `Makefile`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR, "Makefile") == -1) {
-        perr("create_files: failed to allocate memory for path");
+        perr("failed to allocate memory for path");
         return -1;
     }
     char *makefile = generate_makefile(opts->name, opts->lang);
@@ -94,8 +93,7 @@ static int create_files(const cli_options_t *opts, char *relative) {
         return -1;
     }
     if (write_file(path, makefile) != 0) {
-        perr("create_files: failed to write to `%s`",
-             strchr(path, PATH_SEPARATOR) + 1);
+        perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
         free(makefile);
         free(path);
         return -1;
@@ -107,12 +105,11 @@ static int create_files(const cli_options_t *opts, char *relative) {
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                  (opts->lang == LANG_C) ? "src/main.c" : "src/main.cpp") ==
         -1) {
-        perr("create_files: failed to allocate memory for path");
+        perr("failed to allocate memory for path");
         return -1;
     }
     if (write_file(path, (opts->lang == LANG_C) ? main_c() : main_cpp()) != 0) {
-        perr("create_files: failed to write to `%s`",
-             strchr(path, PATH_SEPARATOR) + 1);
+        perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
         free(path);
         return -1;
     }
@@ -121,12 +118,11 @@ static int create_files(const cli_options_t *opts, char *relative) {
     // create `compile_flags.txt`
     if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                  "compile_flags.txt") == -1) {
-        perr("create_files: failed to allocate memory for path");
+        perr("failed to allocate memory for path");
         return -1;
     }
     if (write_file(path, compile_flags()) != 0) {
-        perr("create_files: failed to write to `%s`",
-             strchr(path, PATH_SEPARATOR) + 1);
+        perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
         free(path);
         return -1;
     }
@@ -138,13 +134,12 @@ static int create_files(const cli_options_t *opts, char *relative) {
         if (asprintf(&path, "%s%c%s", relative, PATH_SEPARATOR,
                      (opts->lang == LANG_C ? "include/debug.h"
                                            : "include/debug.hpp")) == -1) {
-            perr("create_files: failed to allocate memory for path");
+            perr("failed to allocate memory for path");
             return -1;
         }
 
         if (write_file(path, src) != 0) {
-            perr("create_files: failed to write to `%s`",
-                 strchr(path, PATH_SEPARATOR) + 1);
+            perr("failed to write to `%s`", strchr(path, PATH_SEPARATOR) + 1);
             free(src);
             free(path);
             return -1;

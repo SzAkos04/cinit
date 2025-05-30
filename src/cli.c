@@ -17,7 +17,7 @@ static int opts_default(cli_options_t *opts) {
     // check if there is a ~/.cinitrc file
     const char *home = getenv("HOME");
     if (!home) {
-        perr("opts_default: failed to resolve home directory");
+        perr("failed to resolve home directory");
         return -1;
     }
 
@@ -119,14 +119,14 @@ static int handle_create_command(int argc, char **argv, int *i,
     opts->name = argv[++(*i)];
     char *cur_dir = current_dir();
     if (!cur_dir) {
-        perr("handle_create_command: failed to get current path");
+        perr("failed to get current path");
         return -1;
     }
 
     int path_len = strlen(cur_dir) + strlen(opts->name) + 2;
     opts->path = (char *)malloc(path_len + 1);
     if (!opts->path) {
-        perr("handle_create_command: failed to allocate memory for path");
+        perr("failed to allocate memory for path");
         free(cur_dir);
         return -1;
     }
@@ -141,7 +141,7 @@ static int handle_init_command(int argc, char **argv, int *i,
                                cli_options_t *opts) {
     opts->path = current_dir();
     if (!opts->path) {
-        perr("handle_init_command: failed to get current path");
+        perr("failed to get current path");
         return -1;
     }
 

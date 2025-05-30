@@ -91,7 +91,7 @@ help:\n\
 ",
                  compiler, compiler_bin, project, ext, ext, ext, compiler,
                  compiler) == -1) {
-        perr("makefile_tempalte: failed to allocate memory for `Makefile`");
+        perr("failed to allocate memory for `Makefile`");
         return NULL;
     }
 
@@ -173,7 +173,7 @@ extern bool silent;\n\
         fprintf(stderr, \"%%s%s: %%serror%%s: \", BOLD, RED, RESET);             \\\n\
         fprintf(stderr, __VA_ARGS__);                                          \\\n\
         fprintf(stderr, \"\\n\");                                                 \\\n\
-        perror(\"  ↳ system error\");                                            \\\n\
+        perror(\"  \u21B3 system error\");                                       \\\n\
     } while (0)\n\
 \n\
 #define warning(...)                                                           \\\n\
@@ -223,7 +223,7 @@ extern bool silent;\n\
 ",
                  part1, project, project, project, project, project,
                  project) == -1) {
-        perr("debug_h: failed to allocate memory for `debug.h`");
+        perr("failed to allocate memory for `debug.h`");
         return NULL;
     }
 
@@ -326,7 +326,7 @@ extern bool silent;\n\
 #define MAYBE_UNUSED __attribute__((unused))",
                  part1, project, project, project, project, project,
                  project) == -1) {
-        perr("debug_hpp: failed to allocate memory for `debug.hpp`");
+        perr("failed to allocate memory for `debug.hpp`");
         return NULL;
     }
 

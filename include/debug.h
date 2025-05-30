@@ -2,11 +2,12 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 extern bool use_color;
 extern bool silent;
 
-#define COLOR(x) (use_color ? x : "")
+#define COLOR(x) (use_color && !getenv("NO_COLOR") ? x : "")
 
 #define RESET COLOR("\033[;0m")
 #define BOLD COLOR("\033[1m")
@@ -33,6 +34,34 @@ extern bool silent;
 #define BRIGHT_CYAN COLOR("\033[96m")
 #define BRIGHT_WHITE COLOR("\033[97m")
 
+#ifdef DEBUG
+#define error(...)                                                             \
+    do {                                                                       \
+        fprintf(stderr, "%scinit: %serror%s [%s:%d:%s()]: ", BOLD, RED, RESET, \
+                __FILE__, __LINE__, __func__);                                 \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fprintf(stderr, "\n");                                                 \
+    } while (0)
+
+#define perr(...)                                                              \
+    do {                                                                       \
+        fprintf(stderr, "%scinit: %serror%s [%s:%d:%s()]: ", BOLD, RED, RESET, \
+                __FILE__, __LINE__, __func__);                                 \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fprintf(stderr, "\n");                                                 \
+        perror("  \u21B3 system error");                                       \
+    } while (0)
+
+#define debug(...)                                                             \
+    do {                                                                       \
+        if (!silent) {                                                         \
+            fprintf(stdout, "%scinit: %sdebug%s [%s:%d:%s()]%s: ", BOLD, BLUE, \
+                    RESET, __FILE__, __LINE__, __func__, RESET);               \
+            fprintf(stdout, __VA_ARGS__);                                      \
+            fprintf(stdout, "\n");                                             \
+        }                                                                      \
+    } while (0)
+#else
 #define error(...)                                                             \
     do {                                                                       \
         fprintf(stderr, "%scinit: %serror%s: ", BOLD, RED, RESET);             \
@@ -45,8 +74,13 @@ extern bool silent;
         fprintf(stderr, "%scinit: %serror%s: ", BOLD, RED, RESET);             \
         fprintf(stderr, __VA_ARGS__);                                          \
         fprintf(stderr, "\n");                                                 \
-        perror("  ↳ system error");                                            \
+        perror("  \u21B3 system error");                                       \
     } while (0)
+
+#define debug(...)                                                             \
+    do {                                                                       \
+    } while (0)
+#endif
 
 #define warning(...)                                                           \
     do {                                                                       \
@@ -65,22 +99,6 @@ extern bool silent;
             fprintf(stdout, "\n");                                             \
         }                                                                      \
     } while (0)
-
-#ifdef DEBUG
-#define debug(...)                                                             \
-    do {                                                                       \
-        if (!silent) {                                                         \
-            fprintf(stdout, "%scinit: %sdebug%s [%s:%d]%s: ", BOLD, BLUE,      \
-                    RESET, __FILE__, __LINE__, RESET);                         \
-            fprintf(stdout, __VA_ARGS__);                                      \
-            fprintf(stdout, "\n");                                             \
-        }                                                                      \
-    } while (0)
-#else
-#define debug(...)                                                             \
-    do {                                                                       \
-    } while (0)
-#endif
 
 #define success(...)                                                           \
     do {                                                                       \
