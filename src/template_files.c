@@ -1,5 +1,6 @@
 #include "template_files.h"
 
+#include "cli.h"
 #include "debug.h"
 
 #include <stdlib.h>
@@ -90,7 +91,7 @@ help:\n\
 ",
                  compiler, compiler_bin, project, ext, ext, ext, compiler,
                  compiler) == -1) {
-        perr("makefile_tempalte: failed to allocate memory for Makefile");
+        perr("makefile_tempalte: failed to allocate memory for `Makefile`");
         return NULL;
     }
 
@@ -222,7 +223,7 @@ extern bool silent;\n\
 ",
                  part1, project, project, project, project, project,
                  project) == -1) {
-        perr("debug_h: failed to allocate memory for Makefile");
+        perr("debug_h: failed to allocate memory for `debug.h`");
         return NULL;
     }
 
@@ -230,6 +231,104 @@ extern bool silent;\n\
 }
 
 char *debug_hpp(const char *project) {
-    (void)project;
-    return NULL;
+    char *result = NULL;
+
+    char *part1 = "\
+#pragma once\n\
+\n\
+#include <cstring>\n\
+#include <iostream>\n\
+\n\
+extern bool use_color;\n\
+extern bool silent;\n\
+\n\
+#define COLOR(x) (use_color ? x : \"\")\n\
+\n\
+#define RESET COLOR(\"\\033[;0m\")\n\
+#define BOLD COLOR(\"\\033[1m\")\n\
+#define DIM COLOR(\"\\033[2m\")\n\
+#define UNDERLINE COLOR(\"\\033[4m\")\n\
+#define INVERT COLOR(\"\\033[7m\")\n\
+#define STRIKETHROUGH COLOR(\"\\033[9m\")\n\
+\n\
+#define BLACK COLOR(\"\\033[30m\")\n\
+#define RED COLOR(\"\\033[31m\")\n\
+#define GREEN COLOR(\"\\033[32m\")\n\
+#define YELLOW COLOR(\"\\033[33m\")\n\
+#define BLUE COLOR(\"\\033[34m\")\n\
+#define MAGENTA COLOR(\"\\033[35m\")\n\
+#define CYAN COLOR(\"\\033[36m\")\n\
+#define WHITE COLOR(\"\\033[37m\")\n\
+\n\
+#define BRIGHT_BLACK COLOR(\"\\033[90m\")\n\
+#define BRIGHT_RED COLOR(\"\\033[91m\")\n\
+#define BRIGHT_GREEN COLOR(\"\\033[92m\")\n\
+#define BRIGHT_YELLOW COLOR(\"\\033[93m\")\n\
+#define BRIGHT_BLUE COLOR(\"\\033[94m\")\n\
+#define BRIGHT_MAGENTA COLOR(\"\\033[95m\")\n\
+#define BRIGHT_CYAN COLOR(\"\\033[96m\")\n\
+#define BRIGHT_WHITE COLOR(\"\\033[97m\")\n\
+\n";
+
+    if (asprintf(&result, "%s\
+#define error(msg)                                                             \\\n\
+    do {                                                                       \\\n\
+        std::cerr << BOLD << \"%s: \" << RED << \"error\" << RESET << \": \"    \\\n\
+                  << msg << std::endl;                                         \\\n\
+    } while (0)\n\
+\n\
+#define perr(msg)                                                              \\\n\
+    do {                                                                       \\\n\
+        std::cerr << BOLD << \"%s: \" << RED << \"error\" << RESET << \": \"    \\\n\
+                  << msg << std::endl;                                         \\\n\
+        std::cerr << \"  \\u21B3 system error: \" << strerror(errno)              \\\n\
+                  << std::endl;                                                \\\n\
+    } while (0)\n\
+\n\
+#define warning(msg)                                                           \\\n\
+    do {                                                                       \\\n\
+        if (!silent) {                                                         \\\n\
+            std::cout << BOLD << \"%s: \" << YELLOW << \"warning\" << RESET   \\\n\
+                      << \": \" << msg << std::endl;                             \\\n\
+        }                                                                      \\\n\
+    } while (0)\n\
+\n\
+#define info(msg)                                                              \\\n\
+    do {                                                                       \\\n\
+        if (!silent) {                                                         \\\n\
+            std::cout << BOLD << \"%s: info\" << RESET << \": \" << msg       \\\n\
+                      << std::endl;                                            \\\n\
+        }                                                                      \\\n\
+    } while (0)\n\
+\n\
+#ifdef DEBUG\n\
+#define debug(msg)                                                             \\\n\
+    do {                                                                       \\\n\
+        if (!silent) {                                                         \\\n\
+            std::cout << BOLD << \"%s: \" << BLUE << \"[\" << __FILE__ << \":\" \\\n\
+                      << __LINE__ << \"]\" << RESET << \": \" << msg << std::endl; \\\n\
+        }                                                                      \\\n\
+    } while (0)\n\
+#else\n\
+#define debug(msg)                                                             \\\n\
+    do {                                                                       \\\n\
+    } while (0)\n\
+#endif\n\
+\n\
+#define success(msg)                                                           \\\n\
+    do {                                                                       \\\n\
+        if (!silent) {                                                         \\\n\
+            std::cout << BOLD << \"%s: \" << GREEN << \"success\" << RESET    \\\n\
+                      << \": \" << msg << std::endl;                             \\\n\
+        }                                                                      \\\n\
+    } while (0)\n\
+\n\
+#define MAYBE_UNUSED __attribute__((unused))",
+                 part1, project, project, project, project, project,
+                 project) == -1) {
+        perr("debug_hpp: failed to allocate memory for `debug.hpp`");
+        return NULL;
+    }
+
+    return result;
 }
