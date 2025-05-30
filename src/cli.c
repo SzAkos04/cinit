@@ -29,6 +29,7 @@ static int opts_default(cli_options_t *opts) {
         if (parse_cinitrc(path, opts) != 0) {
             return -1;
         }
+        fclose(file);
     } else {
         *opts = (cli_options_t){
             .lang = LANG_C,
