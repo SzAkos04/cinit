@@ -26,12 +26,16 @@ static char *trim(char *str) {
     return str;
 }
 
+// On success returns 0
+// When file doesn't exist returns 1
+// On failure returns -1
 int parse_cinitrc(const char *path, cli_options_t *opts) {
     size_t len;
     char *buf = read_file(path, &len);
     if (!buf) {
-        perr("parse_cinitrc: failed to read `%s`", path);
         return -1;
+    } else if (buf == FILE_NOT_FOUND) {
+        return 1;
     }
 
     char *line = strtok(buf, "\n");

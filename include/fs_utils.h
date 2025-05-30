@@ -8,6 +8,8 @@
 #define PATH_SEPARATOR '/'
 #endif
 
+#define FILE_NOT_FOUND ((char *)-1)
+
 char *current_dir(void);
 
 int create_dir(const char *path);

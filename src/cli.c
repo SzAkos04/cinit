@@ -24,13 +24,10 @@ static int opts_default(cli_options_t *opts) {
     char path[512];
     snprintf(path, sizeof(path), "%s/.cinitrc", home);
 
-    FILE *file = fopen(path, "rb");
-    if (file) {
-        if (parse_cinitrc(path, opts) != 0) {
-            return -1;
-        }
-        fclose(file);
-    } else {
+    int result = parse_cinitrc(path, opts);
+    if (result == -1) {
+        return -1;
+    } else if (result == 1) {
         *opts = (cli_options_t){
             .lang = LANG_C,
             .show_version = false,

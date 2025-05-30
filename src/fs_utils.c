@@ -37,10 +37,13 @@ int create_dir(const char *path) {
 }
 
 // MUST BE FREED
+// returns contents on success
+// returns FILE_NOT_FOUND when file not found
+// returns NULL on failure
 char *read_file(const char *filename, size_t *file_size) {
     FILE *file = fopen(filename, "rb");
-    if (file == NULL) {
-        return NULL;
+    if (!file) {
+        return FILE_NOT_FOUND;
     }
 
     fseek(file, 0, SEEK_END);
@@ -48,7 +51,7 @@ char *read_file(const char *filename, size_t *file_size) {
     fseek(file, 0, SEEK_SET);
 
     char *buffer = (char *)malloc(*file_size + 1);
-    if (buffer == NULL) {
+    if (!buffer) {
         fclose(file);
         return NULL;
     }
