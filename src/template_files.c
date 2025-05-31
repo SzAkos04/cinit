@@ -42,13 +42,14 @@ SRC := $(wildcard $(SRC_DIR)/*.%s)\n\
 ifeq ($(SRC),)\n\
 $(error No source files found in $(SRC_DIR))\n\
 endif\n\
+\n\
+BUILD_DIR := build\n\
+BUILD_ARGS ?= -DDEBUG\n\
+OBJ := $(SRC:$(SRC_DIR)/%%.%s=$(BUILD_DIR)/%%.o)\n\
 DEP := $(OBJ:.o=.d)\n\
 ifneq ($(MAKECMDGOALS),clean)\n\
 \t-include $(wildcard $(DEP))\n\
 endif\n\
-BUILD_DIR := build\n\
-BUILD_ARGS ?= -DDEBUG\n\
-OBJ := $(SRC:$(SRC_DIR)/%%.%s=$(BUILD_DIR)/%%.o)\n\
 \n\
 GREEN := $(shell printf '\033[0;32m')\n\
 CYAN := $(shell printf '\033[0;36m')\n\
@@ -87,8 +88,7 @@ help:\n\
 \t$(ECHO) \"$(CYAN)[HELP]$(RESET) Available targets:\"\n\
 \t$(ECHO) \"$(CYAN)[HELP]$(RESET)   build     - Compile the project\"\n\
 \t$(ECHO) \"$(CYAN)[HELP]$(RESET)   release   - Build with -O3 optimizations\"\n\
-\t$(ECHO) \"$(CYAN)[HELP]$(RESET)   clean     - Remove build files\"\
-",
+\t$(ECHO) \"$(CYAN)[HELP]$(RESET)   clean     - Remove build files\"",
                  compiler, compiler_bin, project, ext, ext, ext, compiler,
                  compiler) == -1) {
         perr("failed to allocate memory for `Makefile`");
@@ -219,8 +219,7 @@ extern bool silent;\n\
         }                                                                      \\\n\
     } while (0)\n\
 \n\
-#define MAYBE_UNUSED __attribute__((unused))\n\
-",
+#define MAYBE_UNUSED __attribute__((unused))",
                  part1, project, project, project, project, project,
                  project) == -1) {
         perr("failed to allocate memory for `debug.h`");
