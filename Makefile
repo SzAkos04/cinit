@@ -70,6 +70,7 @@ install: release
 uninstall: clean
 	$(ECHO) "$(CYAN)[INFO]$(RESET) Remove '$(BUILD_DIR)/' from your system's PATH.
 else
+USER_HOME := $(shell eval echo ~$(SUDO_USER))
 install: release
 	$(ECHO) "$(CYAN)[INSTALL]$(RESET) Installing binary to $(BIN_DIR)..."
 	@install -Dm755 $(BUILD_DIR)/$(PROJECT) $(BIN_DIR)/$(PROJECT)
@@ -78,6 +79,16 @@ install: release
 	@mkdir -p $(MAN_DIR)
 	@cp $(PROJECT).1 $(MAN_DIR)
 	$(ECHO) "$(GREEN)[OK]$(RESET) Man page installed to $(MAN_DIR)"
+	$(ECHO) "$(CYAN)[INSTALL]$(RESET) Checking for existing ~/.cinitrc..."
+	@if [ ! -f $(USER_HOME)/.cinitrc ]; then \
+		echo "$(CYAN)[INSTALL]$(RESET) Creating default ~/.cinitrc..."; \
+		echo "# cinit configuration file" > $(USER_HOME)/.cinitrc; \
+		echo "lang=c" >> $(USER_HOME)/.cinitrc; \
+		echo "debug=false" >> $(USER_HOME)/.cinitrc; \
+		echo "$(GREEN)[OK]$(RESET) Default ~/.cinitrc created."; \
+	else \
+		echo "$(CYAN)[SKIP]$(RESET) ~/.cinitrc already exists. No changes made."; \
+	fi
 
 uninstall: clean
 	$(ECHO) "$(CYAN)[UNINSTALL]$(RESET) Removing binary from $(BIN_DIR)..."

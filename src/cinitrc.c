@@ -66,7 +66,7 @@ int parse_cinitrc(const char *path, cli_options_t *opts) {
                 warning("unknown lang value `%s`, defaulting to `c`", val);
                 opts->lang = LANG_C;
             }
-        } else if (strcmp(key, "implement_debug") == 0) {
+        } else if (strcmp(key, "debug") == 0) {
             opts->implement_debug = strcmp(val, "true") == 0;
         } else {
             warning("unknown config option `%s` in config", key);
