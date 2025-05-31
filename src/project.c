@@ -210,11 +210,13 @@ void help(void) {
     printf("  create|c  Create a new project in the given directory\n");
     printf("\n");
     printf("%s%sArguments:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  name      The name of the project\n");
-    printf("  --c       Set language to C (default)\n");
-    printf("  --cpp     Set language to C++\n");
-    printf("  --help    Show this message\n");
-    printf("  --version Show installed version\n");
+    printf("  name       The name of the project\n");
+    printf("  --c        Set language to C (default)\n");
+    printf("  --cpp      Set language to C++\n");
+    printf("  --help     Show this message\n");
+    printf("  --version  Show installed version\n");
+    printf("  --silent   Disable output (except errors)\n");
+    printf("  --no-color Disable output coloring\n");
     printf("\n");
     printf("%s%sExamples:%s\n", BOLD, UNDERLINE, RESET);
     printf("  %scinit init my_project%s\n", BOLD, RESET);

@@ -51,7 +51,6 @@ cinit --help                    # Show help message
 | ------------- | -------------------------------------------------------- |
 | `create`, `c` | Create a project in a **new** directory                  |
 | `init`, `i`   | Initialize a project in the **current** directory        |
-| `name`        | Project name (alphanumeric or underscores)               |
 
 
 ### Options
