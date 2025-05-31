@@ -43,13 +43,13 @@ ifeq ($(SRC),)\n\
 $(error No source files found in $(SRC_DIR))\n\
 endif\n\
 \n\
-BUILD_DIR := build\n\
-BUILD_ARGS ?= -DDEBUG\n\
-OBJ := $(SRC:$(SRC_DIR)/%%.%s=$(BUILD_DIR)/%%.o)\n\
 DEP := $(OBJ:.o=.d)\n\
 ifneq ($(MAKECMDGOALS),clean)\n\
 \t-include $(wildcard $(DEP))\n\
 endif\n\
+BUILD_DIR := build\n\
+BUILD_ARGS ?= -DDEBUG\n\
+OBJ := $(SRC:$(SRC_DIR)/%%.%s=$(BUILD_DIR)/%%.o)\n\
 \n\
 GREEN := $(shell printf '\033[0;32m')\n\
 CYAN := $(shell printf '\033[0;36m')\n\
