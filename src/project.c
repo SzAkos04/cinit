@@ -197,9 +197,10 @@ void version(void) {
            "%sBuilt on  %s: %s\n"
            // TODO: update release date before publishing
            "%sRelease   %s: 31/05/2025\n",
-           BOLD, RESET, 
-           BOLD, RESET, VERSION,
-           BOLD, RESET, BUILD_DATE);
+           BOLD, RESET,             //
+           BOLD, RESET, VERSION,    //
+           BOLD, RESET, BUILD_DATE, //
+           BOLD, RESET);
 }
 
 void help(void) {
@@ -235,13 +236,14 @@ void help(void) {
            "\n"
            "%s%sFor more information, visit:%s\n"
            "  %shttps://github.com/SzAkos04/cinit%s\n",
-           BOLD, UNDERLINE, RESET,
-           BOLD, UNDERLINE, RESET,
-           BOLD, UNDERLINE, RESET,
-           BOLD, UNDERLINE, RESET,
-           BOLD, RESET,
-           BOLD, RESET,
-           BOLD, RESET
-           BOLD, UNDERLINE, RESET
-           BOLD, UNDERLINE, RESET);
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, RESET,            //
+           BOLD, RESET,            //
+           BOLD, RESET,            //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, RESET);
 }
