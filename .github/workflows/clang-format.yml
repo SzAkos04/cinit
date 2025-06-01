@@ -1,0 +1,32 @@
+name: Clang Format Check
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          FILES=$(find . -regex '.*\.\(c\|h\)' -not -path "./build/*")
+          if [ -n "$FILES" ]; then
+            clang-format --dry-run --Werror $FILES
+          fi
+
+      - name: Show formatting differences (optional)
+        if: failure()
+        run: |
+          for file in $FILES; do
+            clang-format $file | diff -u $file - || true
+          done
