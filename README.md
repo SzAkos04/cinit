@@ -52,7 +52,6 @@ cinit --help                    # Show help message
 | `create`, `c` | Create a project in a **new** directory                  |
 | `init`, `i`   | Initialize a project in the **current** directory        |
 
-
 ### Options
 
 | Option       | Description                   |
@@ -64,7 +63,6 @@ cinit --help                    # Show help message
 | `--version`  | Show installed version          |
 | `--silent`   | Disable output (except errors)  |
 | `--no-color` | Disable output coloring         |
-
 
 ### Examples
 
@@ -82,3 +80,13 @@ Create a new C++ project in a new directory:
 ```bash
 cinit create my_project --cpp
 ```
+
+
+## Contribution Guidelines
+
+If you'd like to contribute to `cinit`, please make sure to read the [`CONTRIBUTING.md`](CONTRIBUTING.md) file first.
+It contains important information about the project's coding standards, commit message format, and the contribution process.
+
+Following these guidelines helps us maintain a high-quality codebase and makes collaboration smoother for everyone.
+
+Thank you for helping improve `cinit`!
