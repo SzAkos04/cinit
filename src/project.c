@@ -192,44 +192,58 @@ int project_generate(const cli_options_t *opts) {
 #endif
 
 void version(void) {
-    printf("%scinit v0.0.6%s\n", BOLD, RESET);
-    printf("%sGit commit%s: %s\n", BOLD, RESET, VERSION);
-    printf("%sBuilt on  %s: %s\n", BOLD, RESET, BUILD_DATE);
-    // TODO: update release date before publishing
-    printf("%sRelease   %s: 31/05/2025\n", BOLD, RESET);
+    printf("%scinit v0.0.6%s\n"
+           "%sGit commit%s: %s\n"
+           "%sBuilt on  %s: %s\n"
+           // TODO: update release date before publishing
+           "%sRelease   %s: 31/05/2025\n",
+           BOLD, RESET,             //
+           BOLD, RESET, VERSION,    //
+           BOLD, RESET, BUILD_DATE, //
+           BOLD, RESET);
 }
 
 void help(void) {
-    printf("%s%sUsage:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  cinit [create|c] [name] <args>\n");
-    printf("  cinit [init|i] ([name]) <args>\n");
-    printf("  cinit --help\n");
-    printf("\n");
-    printf("%s%sOptions:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  init|i    Create a new project in the current directory\n");
-    printf("  create|c  Create a new project in the given directory\n");
-    printf("\n");
-    printf("%s%sArguments:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  name       The name of the project\n");
-    printf("  --c        Set language to C (default)\n");
-    printf("  --cpp      Set language to C++\n");
-    printf("  --help     Show this message\n");
-    printf("  --version  Show installed version\n");
-    printf("  --silent   Disable output (except errors)\n");
-    printf("  --no-color Disable output coloring\n");
-    printf("\n");
-    printf("%s%sExamples:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  %scinit init my_project%s\n", BOLD, RESET);
-    printf("    Initializes a new project in the current directory\n");
-    printf("  %scinit create my_project%s\n", BOLD, RESET);
-    printf("    Creates a new project called `my_project`\n");
-    printf("  %scinit create my_project --cpp%s\n", BOLD, RESET);
-    printf("    Creates a new C++ project called `my_project`\n");
-    printf("\n");
-    printf("%s%sNotes:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  - Project names must be alphanumeric or underscores only\n");
-    printf("  - Maximum length: 32 characters\n");
-    printf("\n");
-    printf("%s%sFor more information, visit:%s\n", BOLD, UNDERLINE, RESET);
-    printf("  %shttps://github.com/SzAkos04/cinit%s\n", BOLD, RESET);
+    printf("%s%sUsage:%s\n"
+           "  cinit [create|c] [name] <args>\n"
+           "  cinit [init|i] ([name]) <args>\n"
+           "  cinit --help\n"
+           "\n"
+           "%s%sOptions:%s\n"
+           "  init|i    Create a new project in the current directory\n"
+           "  create|c  Create a new project in the given directory\n"
+           "\n"
+           "%s%sArguments:%s\n"
+           "  name       The name of the project\n"
+           "  --c        Set language to C (default)\n"
+           "  --cpp      Set language to C++\n"
+           "  --help     Show this message\n"
+           "  --version  Show installed version\n"
+           "  --silent   Disable output (except errors)\n"
+           "  --no-color Disable output coloring\n"
+           "\n"
+           "%s%sExamples:%s\n"
+           "  %scinit init my_project%s\n"
+           "    Initializes a new project in the current directory\n"
+           "  %scinit create my_project%s\n"
+           "    Creates a new project called `my_project`\n"
+           "  %scinit create my_project --cpp%s\n"
+           "    Creates a new C++ project called `my_project`\n"
+           "\n"
+           "%s%sNotes:%s\n"
+           "  - Project names must be alphanumeric or underscores only\n"
+           "  - Maximum length: 32 characters\n"
+           "\n"
+           "%s%sFor more information, visit:%s\n"
+           "  %shttps://github.com/SzAkos04/cinit%s\n",
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, RESET,            //
+           BOLD, RESET,            //
+           BOLD, RESET,            //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, UNDERLINE, RESET, //
+           BOLD, RESET);
 }
